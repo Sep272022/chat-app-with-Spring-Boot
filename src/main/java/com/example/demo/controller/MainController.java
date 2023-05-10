@@ -1,16 +1,23 @@
-package com.example.demo;
+package com.example.demo.controller;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import com.example.demo.model.User;
+import com.example.demo.service.UserService;
+
+@RestController
 public class MainController {
+
+  @Autowired
+  private UserService userService;
   
   @GetMapping("/register")
   public String showForm(Model model) {
@@ -26,11 +33,12 @@ public class MainController {
   @PostMapping("/register")
   public String submitForm(@ModelAttribute("user") User user) {
     System.out.println(user);
+    userService.createUser(user);
     return "register_success";
   }
 
   @GetMapping("/login")
-  public String showLoginPage(Model model) {
+  public String showLoginPage() {
     return "login";
   }
 
