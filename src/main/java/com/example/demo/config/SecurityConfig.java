@@ -57,15 +57,17 @@ public class SecurityConfig {
               .logout(logout -> logout.logoutUrl("/logout")
                       .logoutSuccessUrl("/login?logout=true")
                       .invalidateHttpSession(true)
+                      .deleteCookies("JSESSIONID")
                       .permitAll())
-              .csrf((csrf) -> csrf.disable());
+              .csrf((csrf) -> csrf.disable())
+              .cors((cors) -> cors.disable());
     return http.build();
   }
 
-  @Bean
-  WebSecurityCustomizer webSecurityCustomizer() {
-      return (web) -> web.ignoring().requestMatchers("/resources/**");
-  }
+  // @Bean
+  // WebSecurityCustomizer webSecurityCustomizer() {
+  //     return (web) -> web.ignoring().requestMatchers("/resources/**");
+  // }
 
   @Bean 
   PasswordEncoder passwordEncoder() { 

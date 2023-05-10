@@ -1,8 +1,16 @@
-package com.example.demo;
+package com.example.demo.model;
 
 import java.sql.Date;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("user")
 public class User {
+
+  @Id
+  private String id;
+
   private String name;
   private String email;
   private String password;
@@ -11,6 +19,7 @@ public class User {
   private boolean married; 
   private Date birthday;
   private String profession;
+
   
   public String getName() {
     return name;
