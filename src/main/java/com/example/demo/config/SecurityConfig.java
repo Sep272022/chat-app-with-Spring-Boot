@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebSecurity
 @EnableWebMvc
 public class SecurityConfig {
+
+  String[] staticResources = {
+    "/css/**",
+    "/images/**",
+    "/fonts/**",
+    "/scripts/**",};
 
   @Bean
   InMemoryUserDetailsManager userDetailsManager() {
@@ -39,14 +46,17 @@ public class SecurityConfig {
     return new InMemoryUserDetailsManager(user1, user2, admin);
   }
 
+
   // https://www.baeldung.com/spring-security-login 
   // https://docs.spring.io/spring-security/reference/5.8/migration/servlet/config.html
   @Bean
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-      http.authorizeHttpRequests((authz) -> authz.requestMatchers("/admin/**")
+      http.authorizeHttpRequests((authz) -> authz.requestMatchers("/css/**", "/js/**").permitAll().requestMatchers("/admin/**")
               .hasRole("ADMIN")
               .requestMatchers("/user/**")
               .hasAnyRole("USER", "ADMIN")
+              .requestMatchers(staticResources)
+              .permitAll()
               .anyRequest()
               .authenticated())
               .formLogin(login -> login.loginPage("/login")
@@ -66,7 +76,7 @@ public class SecurityConfig {
 
   // @Bean
   // WebSecurityCustomizer webSecurityCustomizer() {
-  //     return (web) -> web.ignoring().requestMatchers("/resources/**");
+  //     return (web) -> web.ignoring().requestMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
   // }
 
   @Bean 
