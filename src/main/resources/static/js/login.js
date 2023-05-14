@@ -1,4 +1,5 @@
 
+console.log('login.js loaded');
 
 const registerButton = document.querySelector('#register-button');
 registerButton.addEventListener('click', () => {
