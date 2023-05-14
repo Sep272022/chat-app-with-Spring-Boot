@@ -7,9 +7,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc
 public class SecurityConfig {
 
   String[] staticResources = {
@@ -18,6 +20,11 @@ public class SecurityConfig {
     "/css/**",
     "/js/**",
     "/*.js"};
+
+  String[] permittededUrls = {
+    "/login",
+    "/register",
+    "/check_email**"};
 
   // @Bean
   // InMemoryUserDetailsManager userDetailsManager() {
@@ -46,11 +53,13 @@ public class SecurityConfig {
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http.authorizeHttpRequests((authz) -> authz
               .requestMatchers(staticResources).permitAll()
-              .requestMatchers("/login", "/register").permitAll()
+              .requestMatchers(permittededUrls).permitAll()
               .requestMatchers("/admin/**").hasRole("ADMIN")
               .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
               .anyRequest().authenticated())
               .formLogin(login -> login.loginPage("/login")
+                      .loginProcessingUrl("/login/process")
+                      .usernameParameter("email")
                       .successForwardUrl("/index")
                       .failureUrl("/login?error")
                       .permitAll())
