@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Document("user")
 public class User {
@@ -16,6 +17,8 @@ public class User {
   private String gender;
   private String note;
   private boolean married; 
+
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
   private Date birthday;
   private String profession;
   private String role;
