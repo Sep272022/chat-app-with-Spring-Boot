@@ -1,4 +1,8 @@
 .vscode
 .DS_Store
 .hintrc
-target/*
+
+/target/
+
+*.class
+application.properties
