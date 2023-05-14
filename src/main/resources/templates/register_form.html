@@ -12,10 +12,15 @@
     <h1>User Registration</h1>
     <form name="userForm" action="#" th:action="@{/register}" method="post" th:object="${user}">
       <label>Full name:</label>
-      <input type="text" th:field="*{name}" /><br/>
+      <input type="text" name="name" th:field="*{name}" /><br/>
 
       <label>E-mail:</label>
-      <input type="text" th:field="*{email}" /><br/>
+      <input type="text" name="email" th:field="*{email}" />
+      <button id="check-button" type="button">Check</button> <br/>
+      <div id="check-success">
+        You can use this email!</div>
+      <div id="check-failure">
+        It is not available!</div>
 
       <label>Password:</label>
       <input type="password" th:field="*{password}" /><br/>
@@ -29,7 +34,7 @@
 
       <label>Profession:</label>
       <select th:field="*{profession}">
-          <option th:each="p : ${listProfession}" th:value="${p}" th:text="${p}" />
+        <option th:each="p : ${listProfession}" th:value="${p}" th:text="${p}" />
       </select>
       <br/>
 

@@ -37,4 +37,8 @@ public class UserService {
     return false;
   }
 
+  public boolean isEmailAvailable(String email) {
+    return findUserByEmail(email) == null;
+  }
+
 }
