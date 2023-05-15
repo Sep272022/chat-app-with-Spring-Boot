@@ -17,13 +17,13 @@
       <label>E-mail:</label>
       <input type="text" name="email" th:field="*{email}" />
       <button id="check-button" type="button">Check</button> <br/>
-      <div id="check-success">
-        You can use this email!</div>
-      <div id="check-failure">
-        It is not available!</div>
+      <div id="check-success">You can use this email!</div>
+      <div id="check-failure">It is not available!</div>
 
       <label>Password:</label>
       <input type="password" th:field="*{password}" /><br/>
+      <label>Confirm Password:</label>
+      <input type="password" id="confirm-password"/><br/>
 
       <label>Birthday (yyyy-mm-dd):</label>
       <input type="text" th:field="*{birthday}" /><br/>
