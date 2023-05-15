@@ -7,13 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.Validator.UserValidator;
 import com.example.demo.model.User;
+import com.example.demo.model.UserDTO;
 import com.example.demo.service.UserService;
 
 @Controller
@@ -22,9 +25,12 @@ public class AuthController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private UserValidator userValidator;
+
   @GetMapping("/register")
   public String showForm(Model model) {
-    model.addAttribute("user", new User());
+    model.addAttribute("user", new UserDTO());
 
     List<String> listProfession = Arrays.asList("Developer", "Tester", "Architect");
     model.addAttribute("listProfession", listProfession);
@@ -33,9 +39,14 @@ public class AuthController {
   }
 
   @PostMapping("/register")
-  public String submitForm(@ModelAttribute("user") User user, Model model) {
+  public String submitForm(@ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
     System.out.println(user);
-
+    userValidator.validate(user, bindingResult);
+    if (bindingResult.hasErrors()) {
+      model.addAttribute("errors", bindingResult.getAllErrors());
+      System.out.println(bindingResult.getAllErrors());
+      return "register_form";
+    }
     user = userService.createUser(user);
 
     return "register_success";
