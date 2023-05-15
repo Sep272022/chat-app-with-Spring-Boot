@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,13 +22,13 @@ public class User {
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private Date birthday;
   private String profession;
-  private String role;
+  private Set<Role> roles;
   
-  public String getRole() {
-    return role;
+  public Set<Role> getRoles() {
+    return roles;
   }
-  public void setRole(String role) {
-    this.role = role;
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
   }
   public String getName() {
     return name;
@@ -79,8 +80,9 @@ public class User {
   }
   @Override
   public String toString() {
-    return "User [name=" + name + ", email=" + email + ", password=" + password + ", gender=" + gender + ", note="
-        + note + ", married=" + married + ", birthday=" + birthday + ", profession=" + profession + "]";
+    return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", gender=" + gender
+        + ", note=" + note + ", married=" + married + ", birthday=" + birthday + ", profession=" + profession
+        + ", roles=" + roles + "]";
   }
 
   
