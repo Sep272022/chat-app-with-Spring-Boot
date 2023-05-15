@@ -76,7 +76,6 @@ public class AuthController {
   
   @PostMapping("/login")
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
-    System.out.println(user);
     boolean verified = userService.verifyUser(user);
     if (verified) {
       return "index";
