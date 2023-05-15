@@ -22,6 +22,7 @@ public class SecurityConfig {
     "/*.js"};
 
   String[] permittededUrls = {
+    "/index",
     "/login",
     "/register",
     "/check_email**"};
@@ -54,8 +55,8 @@ public class SecurityConfig {
       http.authorizeHttpRequests((authz) -> authz
               .requestMatchers(staticResources).permitAll()
               .requestMatchers(permittededUrls).permitAll()
-              .requestMatchers("/admin/**").hasRole("ADMIN")
-              .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+              .requestMatchers("/admins/**").hasRole("ADMIN")
+              .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
               .anyRequest().authenticated())
               .formLogin(login -> login.loginPage("/login")
                       .loginProcessingUrl("/login/process")
