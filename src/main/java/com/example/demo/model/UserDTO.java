@@ -1,15 +1,22 @@
 package com.example.demo.model;
 
-public class UserDTO {
+import java.util.Collection;
+import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+public class UserDTO implements UserDetails {
   private Long id;
   private String name;
   private String email;
+  private String pasword; // Not sure if the password should be in DTO
   private String gender;
   private String note;
   private boolean married; 
   private String birthday;
   private String profession;
-  private String role;
+  private Set<Role> roles;
 
   public Long getId() {
     return id;
@@ -59,11 +66,45 @@ public class UserDTO {
   public void setProfession(String profession) {
     this.profession = profession;
   }
-  public String getRole() {
-    return role;
+  public Set<Role> getRoles() {
+    return roles;
   }
-  public void setRole(String role) {
-    this.role = role;
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
+  public String getPasword() {
+    return pasword;
+  }
+  public void setPasword(String pasword) {
+    this.pasword = pasword;
+  }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return getRoles();
+  }
+  @Override
+  public String getPassword() {
+    return pasword;
+  }
+  @Override
+  public String getUsername() {
+    return email;
+  }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+  @Override
+  public boolean isEnabled() {
+    return true;
   }
 
   
