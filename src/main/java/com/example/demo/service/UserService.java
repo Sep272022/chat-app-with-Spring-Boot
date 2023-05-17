@@ -6,9 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +13,7 @@ import com.example.demo.model.Role;
 import com.example.demo.model.User;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
   @Autowired
   private MongoTemplate mongoTemplate;
@@ -48,18 +45,6 @@ public class UserService implements UserDetailsService {
 
   public boolean isEmailAvailable(String email) {
     return findUserByEmail(email) == null;
-  }
-
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = findUserByEmail(username);
-    System.out.println("loadUserByUsername: " + user);
-    if (user == null) {
-      throw new UsernameNotFoundException("User not found");
-    }
-    
-    return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
-        user.getRoles());
   }
 
 
