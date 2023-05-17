@@ -27,14 +27,17 @@
         </div>
         
         <div class="mb-3 d-flex gap-4">
-          <input class="btn btn-primary" name="submit" type="submit" value="submit" />  
-          <a href="/register">
-            <input id="register-button" class="btn btn-light" name="register" type="button" value="register">
-          </a>
+          <input class="btn btn-primary" name="submit" type="submit" value="Submit" />  
+          <input id="register-button" class="btn btn-light" name="register" type="button" value="Register">
         </div>
 
-        <div th:if="${param.error}" hidden>Invalid username and password.</div>
-        <div th:if="${param.logout}" hidden>You have been logged out.</div>
+        <div th:switch="${status}">
+          <p th:case="error">Invalid username and password</p>
+          <p th:case="logout">You have been logged out.</p>
+          <p th:case="register-success">User created successfully!</p>
+        </div>
+        <!-- <div th:if="${param.error}" hidden>Invalid username and password.</div>
+        <div th:if="${param.logout}" hidden>You have been logged out.</div> -->
           
       </form>
     </div>
