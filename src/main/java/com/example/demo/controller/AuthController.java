@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.demo.Validator.UserValidator;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;
 import com.example.demo.service.UserService;
+import com.example.demo.validator.UserValidator;
 
 @Controller
 public class AuthController {
@@ -40,7 +40,6 @@ public class AuthController {
 
   @PostMapping("/register")
   public String submitForm(@ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-    System.out.println(user);
     userValidator.validate(user, bindingResult);
     if (bindingResult.hasErrors()) {
       model.addAttribute("errors", bindingResult.getAllErrors());
@@ -80,7 +79,7 @@ public class AuthController {
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
     boolean verified = userService.verifyUser(user);
     if (verified) {
-      return "index";
+      return "redirect:/index";
     } else {
       model.addAttribute("error", true);
       return "login";
