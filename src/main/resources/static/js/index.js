@@ -12,6 +12,9 @@ function getCurrentUser() {
   }).then(user => {
     console.log('user',user);
     userNameSpan.innerHTML = user.name;
+  }).catch(err => {
+    console.error(err);
+    // window.location.href = "/error.html";
   });
 }
 
