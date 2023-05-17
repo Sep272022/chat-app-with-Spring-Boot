@@ -29,7 +29,6 @@ public class SecurityConfig {
     "/*.js"};
 
   String[] permittededUrls = {
-    "/index",
     "/login",
     "/register",
     "/check_email**"};
