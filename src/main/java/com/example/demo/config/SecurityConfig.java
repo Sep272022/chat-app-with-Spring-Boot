@@ -1,13 +1,20 @@
 package com.example.demo.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @EnableWebSecurity
@@ -27,25 +34,12 @@ public class SecurityConfig {
     "/register",
     "/check_email**"};
 
-  // @Bean
-  // InMemoryUserDetailsManager userDetailsManager() {
-  //   UserDetails user1 = User.withUsername("user1")
-  //                           .password(passwordEncoder().encode("111"))
-  //                           .roles("USER")
-  //                           .build();
-                            
-  //   UserDetails user2 = User.withUsername("user2")
-  //                           .password(passwordEncoder().encode("111"))
-  //                           .roles("USER")
-  //                           .build();
-            
-  //   UserDetails admin = User.withUsername("user3")
-  //                           .password(passwordEncoder().encode("111"))
-  //                           .roles("ADMIN")
-  //                           .build();
+  @Autowired
+  private UserDetailsService userDetailsService;
 
-  //   return new InMemoryUserDetailsManager(user1, user2, admin);
-  // }
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
 
 
   // https://www.baeldung.com/spring-security-login 
@@ -70,22 +64,22 @@ public class SecurityConfig {
                       .deleteCookies("JSESSIONID")
                       .permitAll())
               .csrf((csrf) -> csrf.disable())
-              .cors((cors) -> cors.disable());
+              .cors((cors) -> cors.disable())
+              .httpBasic(withDefaults());
     return http.build();
   }
 
-  // @Bean
-  // WebSecurityCustomizer webSecurityCustomizer() {
-  //     return (web) -> web.ignoring().requestMatchers(staticResources);
-  // }
-
-  @Bean 
-  PasswordEncoder passwordEncoder() { 
-    return new BCryptPasswordEncoder(); 
+  @Bean
+  AuthenticationManager authenticationManager() {
+    return authentication -> authenticationProvider().authenticate(authentication);
   }
 
-  // @Bean
-  // AuthenticationFailureHandler authenticationFailureHandler() {
-  //     return new CustomAuthenticationFailureHandler();
-  // }
+  @Bean
+  AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+    return provider;
+  }
+
 }
