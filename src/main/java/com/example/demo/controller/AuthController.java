@@ -40,7 +40,6 @@ public class AuthController {
 
   @PostMapping("/register")
   public String submitForm(@ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-    System.out.println(user);
     userValidator.validate(user, bindingResult);
     if (bindingResult.hasErrors()) {
       model.addAttribute("errors", bindingResult.getAllErrors());
