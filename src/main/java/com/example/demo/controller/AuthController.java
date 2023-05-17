@@ -49,7 +49,7 @@ public class AuthController {
     }
     user = userService.createUser(user);
 
-    return "register_success";
+    return "redirect:/login?register-success";
   }
 
   @GetMapping("/check_email")
@@ -61,13 +61,16 @@ public class AuthController {
 
   @GetMapping("/login")
   public String login(@RequestParam(value = "error", required = false) String error,
-                      @RequestParam(value = "logout", required = false) String logout, Model model) {
+                      @RequestParam(value = "logout", required = false) String logout,
+                      @RequestParam(value = "register-success", required = false) String registerSuccess, Model model) {
     model.addAttribute("user", new User());
 
     if (error != null) {
       model.addAttribute("status", "error");
     } else if (logout != null) {
       model.addAttribute("status", "logout");
+    } else if (registerSuccess != null) {
+      model.addAttribute("status", "register-success");
     }
 
     return "login";
