@@ -79,10 +79,9 @@ public class AuthController {
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
     boolean verified = userService.verifyUser(user);
     if (verified) {
-      return "redirect:/index";
+      return "index";
     } else {
-      model.addAttribute("error", true);
-      return "login";
+      return "redirect:/login?error";
     }
   }
 
