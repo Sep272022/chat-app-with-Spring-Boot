@@ -60,20 +60,19 @@ public class AuthController {
   }
 
   @GetMapping("/login")
-  public String login(Model model) {
+  public String login(@RequestParam(value = "error", required = false) String error,
+                      @RequestParam(value = "logout", required = false) String logout, Model model) {
     model.addAttribute("user", new User());
+
+    if (error != null) {
+      model.addAttribute("status", "error");
+    } else if (logout != null) {
+      model.addAttribute("status", "logout");
+    }
 
     return "login";
   }
 
-  @GetMapping("/login?error")
-  public String loginError(Model model) {
-    model.addAttribute("user", new User());
-    model.addAttribute("error", true);
-    
-    return "login";
-  }
-  
   @PostMapping("/login")
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
     boolean verified = userService.verifyUser(user);
