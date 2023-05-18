@@ -77,13 +77,7 @@ public class AuthController {
 
   @PostMapping("/login")
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
-    boolean verified = userService.verifyUser(user);
-    if (verified) {
-      return "redirect:/index";
-    } else {
-      model.addAttribute("error", true);
-      return "login";
-    }
+    return "index";
   }
 
   @PostMapping("/logout")
