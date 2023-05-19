@@ -2,18 +2,27 @@ package com.example.demo.model;
 
 import java.sql.Date;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import jakarta.validation.constraints.NotBlank;
+
+@Document("chatMessage")
 public class ChatMessage {
-  private String from;
+  @NotBlank
+  private String fromUserId;
+  @NotBlank
+  private String toUserId;
+  @NotBlank
   private String text;
-  private String to;
+  @NotBlank
   private Date date;
   
 
-  public String getFrom() {
-    return from;
+  public String getFromUserId() {
+    return fromUserId;
   }
-  public void setFrom(String from) {
-    this.from = from;
+  public void setFromUserId(String from) {
+    this.fromUserId = from;
   }
   public String getText() {
     return text;
@@ -21,11 +30,11 @@ public class ChatMessage {
   public void setText(String text) {
     this.text = text;
   }
-  public String getTo() {
-    return to;
+  public String getToUserId() {
+    return toUserId;
   }
-  public void setTo(String to) {
-    this.to = to;
+  public void setToUserId(String to) {
+    this.toUserId = to;
   }
   public Date getDate() {
     return date;

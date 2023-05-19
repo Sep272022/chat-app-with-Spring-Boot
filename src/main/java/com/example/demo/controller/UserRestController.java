@@ -1,6 +1,10 @@
 package com.example.demo.controller;
 
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,10 +13,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.User;
+import com.example.demo.service.ChatService;
+import com.example.demo.service.UserService;
+
 
 @RestController
 @RequestMapping("/users")
 public class UserRestController {
+
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private ChatService chatService;
   
   @GetMapping("/current")
   public ResponseEntity<UserDetails> getCurrentUser() {
@@ -25,6 +39,11 @@ public class UserRestController {
       }
     }
     return ResponseEntity.status(400).build();
+  }
+
+  @GetMapping("/conversations")
+  public ResponseEntity<List<User>> getUserConversations(Principal principal) {
+    
   }
 
 }

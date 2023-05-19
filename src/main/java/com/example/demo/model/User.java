@@ -84,6 +84,9 @@ public class User {
         + ", note=" + note + ", married=" + married + ", birthday=" + birthday + ", profession=" + profession
         + ", roles=" + roles + "]";
   }
+  public String getId() {
+    return id;
+  }
 
   
 }
