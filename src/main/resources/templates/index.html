@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Page</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link th:href="@{/css/index.css}" rel="stylesheet">
+
 </head>
+
 <body>
   <nav class="navbar navbar-expand-sm navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" th:href="@{/index}">primary</a>
+      <a class="navbar-brand" th:href="@{/index}">Hello</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarID"
-          aria-controls="navbarID" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="navbarID" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarID">
         <div class="navbar-nav">
           <a class="nav-link active" aria-current="page" th:href="@{/index}">Home</a>
-            
         </div>
       </div>
       <div>
@@ -28,8 +32,23 @@
     </div>
   </nav>
 
+  <div class="container">
+    <div class="d-flex flex-row g-2">
+      <div class="col left-section">
+        <!-- a list of users the the currnet user has had conversations with -->
+
+      </div>
+      <div class="col right-section">
+        <!-- the chat interface -->
+
+      </div>
+    </div>
+  </div>
 
   <script type="text/javascript" th:src="@{/js/index.js}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>
