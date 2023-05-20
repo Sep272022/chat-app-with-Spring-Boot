@@ -39,6 +39,23 @@ public class ChatService {
     return mongoTemplate.find(query, ChatMessage.class);
   }
 
+  public List<ChatMessage> findByTo(String toUserId) {
+    Query query = new Query();
+    query.addCriteria(Criteria.where("toUserId").is(toUserId));
+    return mongoTemplate.find(query, ChatMessage.class);
+  }
+
+  public List<ChatMessage> findAllByUserId(String userId) {
+    Query query = new Query();
+    Criteria criteria = new Criteria();
+    criteria.orOperator(
+      Criteria.where("fromUserId").is(userId),
+      Criteria.where("toUserId").is(userId)
+    );
+    query.addCriteria(criteria);
+    return mongoTemplate.find(query, ChatMessage.class);
+  }
+
   public void deleteChatMessage(ChatMessage chatMessage) {
     mongoTemplate.remove(chatMessage);
   }
