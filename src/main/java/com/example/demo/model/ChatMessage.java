@@ -4,6 +4,7 @@ import java.sql.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -18,6 +19,7 @@ public class ChatMessage {
   @NotBlank
   private String text;
   @NotBlank
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
   private Date date;
   
 
