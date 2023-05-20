@@ -12,6 +12,7 @@ public class ChatController {
   @MessageMapping("/chat")
   @SendTo("/topic/messages")
   public ChatMessage getMessage(ChatMessage message) {
+    System.out.println(message.getText());
     return message;
   }
 }
