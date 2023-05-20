@@ -1,5 +1,6 @@
 const userNameSpan = document.querySelector("#user-name");
 
+let currentUser = null;
 function getCurrentUser() {
   fetch("/users/current")
     .then((res) => {
@@ -10,6 +11,7 @@ function getCurrentUser() {
       }
     })
     .then((user) => {
+      currentUser = user;
       userNameSpan.innerHTML = `${user.username} (${user.authorities[0].authority})`;
     })
     .catch((err) => {
@@ -20,7 +22,8 @@ function getCurrentUser() {
 getCurrentUser();
 
 const modalBodyAllUsers = document.querySelector("#modal-body-all-users");
-function fillUsers() {
+function fillUsersInModal() {
+  modalBodyAllUsers.innerHTML = "";
   fetch("/users/all")
     .then((res) => {
       if (res.ok) {
@@ -31,19 +34,48 @@ function fillUsers() {
     })
     .then((users) => {
       users.forEach((user) => {
-        let userRow = document.createElement("button");
-        userRow.innerHTML = user.username;
+        if (user.email === currentUser.username) return;
+        let userRow = document.createElement("div");
+        userRow.classList.add("row");
+        userRow.innerHTML = `
+          <input type="radio" class="btn-check" name="user-radio-button" id="${user.name}" autocomplete="off">
+          <label class="btn btn-outline-primary w-100" for="${user.name}">${user.name}</label>
+        `;
         modalBodyAllUsers.appendChild(userRow);
       });
     });
 }
 
-let modalId = document.getElementById("modalId");
-modalId.addEventListener("show.bs.modal", (event) => {
-  // Button that triggered the modal
+let modalNewConversation = document.getElementById("modal-new-conversation");
+modalNewConversation.addEventListener("show.bs.modal", (event) => {
   let button = event.relatedTarget;
-  // Extract info from data-bs-* attributes
   let recipient = button.getAttribute("data-bs-whatever");
-
-  // Use above variables to manipulate the DOM
+  fillUsersInModal();
 });
+
+const talkButton = document.querySelector("#talk-button");
+talkButton.addEventListener("click", (event) => {
+  let selectedUser = document.querySelector(
+    "input[name='user-radio-button']:checked"
+  );
+  if (selectedUser === null) {
+    alert("Please select a user to talk to");
+    return;
+  }
+  let selectedUserName = selectedUser.id;
+  // let socket = new WebSocket("ws://localhost:8080/chat");
+  let sockjs = new SockJS("/websocket-endpoint");
+  stompClient = Stomp.over(sockjs);
+  stompClient.connect({}, (frame) => {
+    console.log("Connected: " + frame);
+    stompClient.subscribe("/topic/messages", (message) => {
+      console.log("received message: " + message);
+    });
+  });
+  closeModal(modalNewConversation);
+});
+
+function closeModal(modalToClose) {
+  document.querySelector(".modal-backdrop.fade.show").classList.remove("show");
+  modalToClose.style.display = "none";
+}
