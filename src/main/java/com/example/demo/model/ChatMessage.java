@@ -2,12 +2,15 @@ package com.example.demo.model;
 
 import java.sql.Date;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.NotBlank;
 
 @Document("chatMessage")
 public class ChatMessage {
+  @Id
+  private String id;
   @NotBlank
   private String fromUserId;
   @NotBlank
