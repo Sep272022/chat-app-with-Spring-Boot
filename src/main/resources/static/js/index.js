@@ -53,6 +53,7 @@ modalNewConversation.addEventListener("show.bs.modal", (event) => {
   fillUsersInModal();
 });
 
+let stompClient = null;
 const talkButton = document.querySelector("#talk-button");
 talkButton.addEventListener("click", (event) => {
   let selectedUser = document.querySelector(
@@ -63,17 +64,39 @@ talkButton.addEventListener("click", (event) => {
     return;
   }
   let selectedUserName = selectedUser.id;
-  // let socket = new WebSocket("ws://localhost:8080/chat");
-  let sockjs = new SockJS("/websocket-endpoint");
-  stompClient = Stomp.over(sockjs);
-  stompClient.connect({}, (frame) => {
-    console.log("Connected: " + frame);
-    stompClient.subscribe("/topic/messages", (message) => {
-      console.log("received message: " + message);
-    });
-  });
+  connect();
+  establishConnection(stompClient);
   closeModal(modalNewConversation);
 });
+
+function establishConnection(stompClient) {
+  stompClient.connect({}, (frame) => {
+    console.log("Connected: " + frame);
+    stompClient.subscribe(
+      "/topic/messages",
+      (message) => { // callback function for when a message is received from the server
+        console.log("received message: " + message);
+      },
+      (error) => { // callback function for when an error is received from the server
+        console.log("STOMP error: " + error);
+      }
+    );
+  });
+}
+
+function connect() {
+  // let socket = new WebSocket("ws://localhost:8080/app");
+  let url = location.protocol + "//" + location.host + "/websocket-endpoint";
+  let sockjs = new SockJS(url);
+  stompClient = Stomp.over(sockjs);
+}
+
+function disconnect() {
+  if (stompClient !== null) {
+    stompClient.disconnect();
+    stompClient = null;
+  }
+}
 
 function closeModal(modalToClose) {
   document.querySelector(".modal-backdrop.fade.show").classList.remove("show");
