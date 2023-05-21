@@ -36,6 +36,10 @@ public class UserService {
     return mongoTemplate.findOne(query, User.class);
   }
 
+  public User findUserById(String id) {
+    return mongoTemplate.findById(id, User.class);
+  }
+  
   public boolean verifyUser(User user) {
     User found = findUserByEmail(user.getEmail());
     if (found != null) {

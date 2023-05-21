@@ -1,25 +1,76 @@
-const userNameSpan = document.querySelector("#user-name");
 
+const messageContainer = document.querySelector("#message-container");
+const sendButton = document.querySelector("#send-button");
+sendButton.disabled = true;
+sendButton.addEventListener("click", (event) => {
+  let msg = {
+    fromUserId: currentUser.id,
+    toUserId: selectedUserId,
+    text: "Hello",
+    date: "2021-08-01"
+  }
+  sendMessage(msg);
+  updateMessageContainer(msg);
+});
+
+
+const userNameSpan = document.querySelector("#user-name");
 let currentUser = null;
-function getCurrentUser() {
-  fetch("/users/current")
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw new Error("Could not get user");
-      }
-    })
-    .then((user) => {
+async function getCurrentUser() {
+  try {
+    let res = await fetch("/users/current");
+    if (res.ok) {
+      let user = await res.json();
       currentUser = user;
-      userNameSpan.innerHTML = `${user.username} (${user.authorities[0].authority})`;
-    })
-    .catch((err) => {
-      console.error(err);
-      window.location.href = "/error";
-    });
+      userNameSpan.innerHTML = `${user.name} (${user.roles[0].name})`;
+      initSock();
+    }
+  } catch (error) {
+    console.error(error);
+    window.location.href = "/error";
+  }
 }
 getCurrentUser();
+console.log('currentUser', currentUser);
+
+let stompClient = null;
+function initSock() {
+  connect();
+  stompClient.debug = (str) => {
+    console.log(str);
+  }
+  establishConnection(stompClient);
+}
+
+function connect() {
+  // let socket = new WebSocket("ws://localhost:8080/app");
+  let url = location.protocol + "//" + location.host + "/websocket-endpoint";
+  let sockjs = new SockJS(url);
+  stompClient = Stomp.over(sockjs);
+  console.log("Connecting to " + url);
+}
+
+function establishConnection(stompClient) {
+  stompClient.connect({}, (frame) => {
+    // console.log("Connected: " + frame);
+    sendButton.disabled = false;
+
+    stompClient.subscribe(
+      "/topic/messages",
+      (message) => { // callback function for when a message is received from the server
+        console.log("received message: " + message);
+        let msg = JSON.parse(message.body);
+        updateMessageContainer(msg);
+      },
+      (error) => { // callback function for when an error is received from the server
+        console.log("STOMP error: " + error);
+      }
+    );
+  }, (error) => {
+    console.log("STOMP error: " + error);
+    sendButton.disabled = true;
+  });
+}
 
 const modalBodyAllUsers = document.querySelector("#modal-body-all-users");
 function fillUsersInModal() {
@@ -34,12 +85,12 @@ function fillUsersInModal() {
     })
     .then((users) => {
       users.forEach((user) => {
-        if (user.email === currentUser.username) return;
+        if (user.email === currentUser.email) return;
         let userRow = document.createElement("div");
         userRow.classList.add("row");
         userRow.innerHTML = `
-          <input type="radio" class="btn-check" name="user-radio-button" id="${user.name}" autocomplete="off">
-          <label class="btn btn-outline-primary w-100" for="${user.name}">${user.name}</label>
+          <input type="radio" class="btn-check" name="user-radio-button" id="${user.id}" autocomplete="off">
+          <label class="btn btn-outline-primary w-100" for="${user.id}">${user.name}</label>
         `;
         modalBodyAllUsers.appendChild(userRow);
       });
@@ -53,7 +104,7 @@ modalNewConversation.addEventListener("show.bs.modal", (event) => {
   fillUsersInModal();
 });
 
-let stompClient = null;
+let selectedUserId = null;
 const talkButton = document.querySelector("#talk-button");
 talkButton.addEventListener("click", (event) => {
   let selectedUser = document.querySelector(
@@ -63,32 +114,20 @@ talkButton.addEventListener("click", (event) => {
     alert("Please select a user to talk to");
     return;
   }
-  let selectedUserName = selectedUser.id;
-  connect();
-  establishConnection(stompClient);
-  closeModal(modalNewConversation);
+  selectedUserId = selectedUser.id;
+
+  // closeModal(modalNewConversation);
 });
 
-function establishConnection(stompClient) {
-  stompClient.connect({}, (frame) => {
-    console.log("Connected: " + frame);
-    stompClient.subscribe(
-      "/topic/messages",
-      (message) => { // callback function for when a message is received from the server
-        console.log("received message: " + message);
-      },
-      (error) => { // callback function for when an error is received from the server
-        console.log("STOMP error: " + error);
-      }
-    );
-  });
+function updateMessageContainer(message) {
+  let messageRow = document.createElement("div");
+  messageRow.classList.add("row");
+  messageRow.innerHTML = `${message.fromUserId}: ${message.text}`;
+  messageContainer.appendChild(messageRow);
 }
 
-function connect() {
-  // let socket = new WebSocket("ws://localhost:8080/app");
-  let url = location.protocol + "//" + location.host + "/websocket-endpoint";
-  let sockjs = new SockJS(url);
-  stompClient = Stomp.over(sockjs);
+function sendMessage(message) {
+  stompClient.send("/app/chat", {}, JSON.stringify(message));
 }
 
 function disconnect() {

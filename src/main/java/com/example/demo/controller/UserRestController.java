@@ -30,13 +30,14 @@ public class UserRestController {
   private ChatService chatService;
   
   @GetMapping("/current")
-  public ResponseEntity<UserDetails> getCurrentUser() {
+  public ResponseEntity<User> getCurrentUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && authentication.isAuthenticated()) {
       Object principal = authentication.getPrincipal();
       if (principal instanceof UserDetails) {
         UserDetails userDetails = (UserDetails) principal;
-        return ResponseEntity.ok(userDetails);
+        User user = userService.findUserByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(user);
       }
     }
     return ResponseEntity.status(400).build();

@@ -6,18 +6,46 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import com.example.demo.model.ChatMessage;
+import com.example.demo.model.User;
+import com.example.demo.service.ChatService;
+import com.example.demo.service.UserService;
 
 @Controller
 public class ChatController {
 
   @Autowired
-  private ChatMessage chatMessage;
+  private ChatService chatService;
+
+  @Autowired
+  private UserService userService;
 
   @MessageMapping("/chat") // this is the endpoint the client sends to
   @SendTo("/topic/messages") // this is the endpoint the client subscribes to
   public ChatMessage getMessage(ChatMessage message) {
-    System.out.println(message.getText());
+    // System.out.println(message.getFromUserId());
+    // System.out.println(message.getToUserId());
+    // System.out.println(message.getText());
+    // System.out.println(message.getDate());
+    handleChatMessage(message);
     return message; // this value is broadcast to all subscribers to the endpoint specified in
                     // @SendTo annotation above
+  }
+
+  private void handleChatMessage(ChatMessage message) {
+    User recipient = userService.findUserById(message.getToUserId());
+    if (recipient == null) {
+      // handle if recipient is not found
+      return; // error or something else?
+    }
+    User sender = userService.findUserById(message.getFromUserId());
+    if (sender == null) {
+      // handle if sender is not found
+      return;
+    }
+    // chatService.saveChatMessage(message);
+    System.out.println("from: " + sender.getEmail());
+    System.out.println("to: " + recipient.getEmail());
+    System.out.println("Message: " + message.getText());
+    System.out.println("Date: " + message.getDate());
   }
 }
