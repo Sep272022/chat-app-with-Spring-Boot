@@ -1,0 +1,7 @@
+
+
+#message-container {
+  height: calc(100vh - 200px);
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
