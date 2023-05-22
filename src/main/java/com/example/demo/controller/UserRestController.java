@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.model.User;
+import com.example.demo.model.UserDTO;
 import com.example.demo.service.ChatService;
 import com.example.demo.service.UserService;
 
@@ -30,13 +30,13 @@ public class UserRestController {
   private ChatService chatService;
   
   @GetMapping("/current")
-  public ResponseEntity<User> getCurrentUser() {
+  public ResponseEntity<UserDTO> getCurrentUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && authentication.isAuthenticated()) {
       Object principal = authentication.getPrincipal();
       if (principal instanceof UserDetails) {
         UserDetails userDetails = (UserDetails) principal;
-        User user = userService.findUserByEmail(userDetails.getUsername());
+        UserDTO user = userService.findUserByEmail(userDetails.getUsername());
         return ResponseEntity.ok(user);
       }
     }
@@ -44,14 +44,14 @@ public class UserRestController {
   }
 
   @GetMapping("/all")
-  public ResponseEntity<List<User>> getAllUsers() {
-    List<User> users = userService.findAll();
+  public ResponseEntity<List<UserDTO>> getAllUsers() {
+    List<UserDTO> users = userService.findAll();
     return ResponseEntity.ok(users);
   }
 
   @GetMapping("/conversations")
   public ResponseEntity<List<ChatMessage>> getUserConversations(Principal principal) {
-    User user = userService.findUserByEmail(principal.getName());
+    UserDTO user = userService.findUserByEmail(principal.getName());
     List<ChatMessage> messages = chatService.findAllByUserId(user.getId());
     return ResponseEntity.ok(messages);
   }

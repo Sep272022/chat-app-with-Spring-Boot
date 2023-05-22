@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
+import com.example.demo.model.UserDTO;
 
 @Service
 public class UserService {
@@ -22,26 +25,31 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public User createUser(User user) {
+  @Autowired
+  private ModelMapper modelMapper;
+
+  public UserDTO createUser(User user) {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     Role role = new Role();
     role.setName("ROLE_USER");
     user.setRoles(Set.of(role));
-    return mongoTemplate.save(user);
+    return modelMapper.map(mongoTemplate.save(user), UserDTO.class);
   }
 
-  public User findUserByEmail(String email) {
+  public UserDTO findUserByEmail(String email) {
     Query query = new Query();
     query.addCriteria(Criteria.where("email").is(email));
-    return mongoTemplate.findOne(query, User.class);
+    return modelMapper.map(mongoTemplate.findOne(query, User.class), UserDTO.class);
   }
 
-  public User findUserById(String id) {
-    return mongoTemplate.findById(id, User.class);
+  public UserDTO findUserById(String id) {
+    return modelMapper.map(mongoTemplate.findById(id, User.class), UserDTO.class);
   }
   
   public boolean verifyUser(User user) {
-    User found = findUserByEmail(user.getEmail());
+    Query query = new Query();
+    query.addCriteria(Criteria.where("email").is(user.getEmail()));
+    User found = mongoTemplate.findOne(query, User.class);
     if (found != null) {
       return passwordEncoder.matches(user.getPassword(), found.getPassword());
     }
@@ -52,8 +60,8 @@ public class UserService {
     return findUserByEmail(email) == null;
   }
 
-  public List<User> findAll() {
-    return mongoTemplate.findAll(User.class);
+  public List<UserDTO> findAll() {
+    return Arrays.asList(modelMapper.map(mongoTemplate.findAll(User.class), UserDTO[].class));
   }
 
 }

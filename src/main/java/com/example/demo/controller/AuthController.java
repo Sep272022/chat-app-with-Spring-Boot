@@ -46,7 +46,7 @@ public class AuthController {
       System.out.println(bindingResult.getAllErrors());
       return "register_form";
     }
-    user = userService.createUser(user);
+    userService.createUser(user);
 
     return "redirect:/login?register-success";
   }

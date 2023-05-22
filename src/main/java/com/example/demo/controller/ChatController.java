@@ -6,7 +6,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
 import com.example.demo.model.ChatMessage;
-import com.example.demo.model.User;
+import com.example.demo.model.UserDTO;
 import com.example.demo.service.ChatService;
 import com.example.demo.service.UserService;
 
@@ -32,12 +32,12 @@ public class ChatController {
   }
 
   private void handleChatMessage(ChatMessage message) {
-    User recipient = userService.findUserById(message.getToUserId());
+    UserDTO recipient = userService.findUserById(message.getToUserId());
     if (recipient == null) {
       // handle if recipient is not found
       return; // error or something else?
     }
-    User sender = userService.findUserById(message.getFromUserId());
+    UserDTO sender = userService.findUserById(message.getFromUserId());
     if (sender == null) {
       // handle if sender is not found
       return;
