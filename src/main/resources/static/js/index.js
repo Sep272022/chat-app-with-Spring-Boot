@@ -1,5 +1,6 @@
 
 const messageContainer = document.querySelector("#message-container");
+const chatTitle = document.querySelector("#chat-title");
 const sendButton = document.querySelector("#send-button");
 sendButton.disabled = true;
 sendButton.addEventListener("click", (event) => {
@@ -43,11 +44,11 @@ function initSock() {
 }
 
 function connect() {
-  // let socket = new WebSocket("ws://localhost:8080/app");
   let url = location.protocol + "//" + location.host + "/websocket-endpoint";
+  // let socket = new WebSocket("ws://localhost:8080//websocket-endpoint");
   let sockjs = new SockJS(url);
   stompClient = Stomp.over(sockjs);
-  console.log("Connecting to " + url);
+  // console.log("Connecting to " + url);
 }
 
 function establishConnection(stompClient) {
@@ -114,16 +115,30 @@ talkButton.addEventListener("click", (event) => {
     alert("Please select a user to talk to");
     return;
   }
+  chatTitle.innerHTML = `Chat with ${selectedUser.nextElementSibling.innerHTML}`;
   selectedUserId = selectedUser.id;
-
-  // closeModal(modalNewConversation);
+  addConversation(selectedUser);
 });
+
+const conversationContainer = document.querySelector("#conversation-container");
+function addConversation(user) {
+  console.log('user',user);
+  let conversationRow = document.createElement("button");
+  conversationRow.classList.add("list-group-item", "d-flex", "justify-content-between", "list-group-item-action", "active");
+  
+  conversationRow.innerHTML = `
+    ${user.id}
+    <span class="badge bg-primary rounded-pill"></span>
+  `;
+  conversationContainer.appendChild(conversationRow);
+} 
 
 function updateMessageContainer(message) {
   let messageRow = document.createElement("div");
-  messageRow.classList.add("row");
+  messageRow.classList.add("p-2");
   messageRow.innerHTML = `${message.fromUserId}: ${message.text}`;
   messageContainer.appendChild(messageRow);
+  messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
 
 function sendMessage(message) {
@@ -135,9 +150,4 @@ function disconnect() {
     stompClient.disconnect();
     stompClient = null;
   }
-}
-
-function closeModal(modalToClose) {
-  document.querySelector(".modal-backdrop.fade.show").classList.remove("show");
-  modalToClose.style.display = "none";
 }
