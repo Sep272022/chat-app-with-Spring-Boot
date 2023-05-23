@@ -8,12 +8,12 @@ sendButton.addEventListener("click", (event) => {
   if (messageInput.value === "") return;
   let msg = {
     fromUserId: currentUser.id,
-    toUserId: selectedUserId,
+    toUserId: selectedUser.id,
     text: messageInput.value,
     date: new Date()
   }
   sendMessage(msg);
-  addMessageToContainer(msg);
+  addMessageToContainer(currentUser.name, msg);
   messageInput.value = "";
 });
 
@@ -70,7 +70,8 @@ function establishConnection(stompClient) {
       (message) => { // callback function for when a message is received from the server
         console.log("received message: " + message);
         let msg = JSON.parse(message.body);
-        addMessageToContainer(msg);
+        let sender = allUsers.find(user => user.id === msg.fromUserId);
+        addMessageToContainer(sender.name, msg);
       },
       (error) => { // callback function for when an error is received from the server
         console.log("STOMP error: " + error);
@@ -82,6 +83,7 @@ function establishConnection(stompClient) {
   });
 }
 
+let allUsers = null;
 const modalBodyAllUsers = document.querySelector("#modal-body-all-users");
 function fillUsersInModal() {
   modalBodyAllUsers.innerHTML = "";
@@ -94,6 +96,7 @@ function fillUsersInModal() {
       }
     })
     .then((users) => {
+      allUsers = users;
       users.forEach((user) => {
         if (user.email === currentUser.email) return;
         let userRow = document.createElement("div");
@@ -114,29 +117,30 @@ modalNewConversation.addEventListener("show.bs.modal", (event) => {
   fillUsersInModal();
 });
 
-let selectedUserId = null;
+let selectedUser = null;
 const talkButton = document.querySelector("#talk-button");
 talkButton.addEventListener("click", (event) => {
-  let selectedUser = document.querySelector(
+  let selectedUserInUserSelection = document.querySelector(
     "input[name='user-radio-button']:checked"
   );
-  if (selectedUser === null) {
+  if (selectedUserInUserSelection === null) {
     alert("Please select a user to talk to");
     return;
   }
-  chatTitle.innerHTML = `Chat with ${selectedUser.nextElementSibling.innerHTML}`;
-  selectedUserId = selectedUser.id;
-  addChatRoomWith(selectedUser);
+  
+  let selectedUserName = selectedUserInUserSelection.nextElementSibling.innerHTML;
+  chatTitle.innerHTML = `Chat with ${selectedUserName}`;
+  selectedUser = allUsers.find(user => user.id === selectedUserInUserSelection.id);
+  addChatRoomWith(selectedUser.name);
 });
 
 const conversationContainer = document.querySelector("#conversation-container");
-function addChatRoomWith(user) {
-  let conversationRow = document.createElement("button");
-  conversationRow.classList.add("list-group-item", "d-flex", "justify-content-between", "list-group-item-action", "active");
-  
+function addChatRoomWith(userName) {
+  let conversationRow = document.createElement("div");
+  conversationRow.classList.add("d-flex", "justify-content-between");
   conversationRow.innerHTML = `
-    ${user.id}
-    <span class="badge bg-primary rounded-pill">0</span>
+    <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
+    <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
   `;
   conversationContainer.appendChild(conversationRow);
   conversationRow.addEventListener("click", (event) => {
@@ -144,10 +148,10 @@ function addChatRoomWith(user) {
   });
 }
 
-function addMessageToContainer(message) {
+function addMessageToContainer(sender, message) {
   let messageRow = document.createElement("div");
   messageRow.classList.add("p-2");
-  messageRow.innerHTML = `${message.fromUserId}: ${message.text}`;
+  messageRow.innerHTML = `${sender}: ${message.text}`;
   messageContainer.appendChild(messageRow);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
