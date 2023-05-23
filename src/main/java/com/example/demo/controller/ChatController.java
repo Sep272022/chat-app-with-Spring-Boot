@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.example.demo.model.ChatMessage;
@@ -19,8 +19,11 @@ public class ChatController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private SimpMessagingTemplate simpMessagingTemplate;
+
   @MessageMapping("/chat") // this is the endpoint the client sends to
-  @SendTo("/topic/messages") // this is the endpoint the client subscribes to
+  // @SendTo("/topic/messages") // this is the endpoint the client subscribes to
   public ChatMessage getMessage(ChatMessage message) {
     // System.out.println(message.getFromUserId());
     // System.out.println(message.getToUserId());
@@ -47,5 +50,12 @@ public class ChatController {
     System.out.println("to: " + recipient.getEmail());
     System.out.println("Message: " + message.getText());
     System.out.println("Date: " + message.getDate());
+    sendChatMessage(recipient, message);
   }
+
+  private void sendChatMessage(UserDTO to, ChatMessage message) {
+    System.out.println("Sending message to: " + to.getEmail());
+    simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", message);
+  }
+
 }

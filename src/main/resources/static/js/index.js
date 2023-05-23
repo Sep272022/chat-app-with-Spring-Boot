@@ -1,18 +1,27 @@
 
 const messageContainer = document.querySelector("#message-container");
 const chatTitle = document.querySelector("#chat-title");
+const messageInput = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
 sendButton.disabled = true;
 sendButton.addEventListener("click", (event) => {
+  if (messageInput.value === "") return;
   let msg = {
     fromUserId: currentUser.id,
     toUserId: selectedUserId,
-    text: "Hello",
-    date: "2021-08-01"
+    text: messageInput.value,
+    date: new Date()
   }
   sendMessage(msg);
-  updateMessageContainer(msg);
+  addMessageToContainer(msg);
+  messageInput.value = "";
 });
+
+document.addEventListener('keydown', (event) => {
+  if (document.activeElement === messageInput && event.key === "Enter") {
+    sendButton.click();
+  }
+})
 
 
 const userNameSpan = document.querySelector("#user-name");
@@ -38,7 +47,7 @@ let stompClient = null;
 function initSock() {
   connect();
   stompClient.debug = (str) => {
-    console.log(str);
+    // console.log(str);
   }
   establishConnection(stompClient);
 }
@@ -57,11 +66,11 @@ function establishConnection(stompClient) {
     sendButton.disabled = false;
 
     stompClient.subscribe(
-      "/topic/messages",
+      "/user/topic/messages",
       (message) => { // callback function for when a message is received from the server
         console.log("received message: " + message);
         let msg = JSON.parse(message.body);
-        updateMessageContainer(msg);
+        addMessageToContainer(msg);
       },
       (error) => { // callback function for when an error is received from the server
         console.log("STOMP error: " + error);
@@ -117,23 +126,25 @@ talkButton.addEventListener("click", (event) => {
   }
   chatTitle.innerHTML = `Chat with ${selectedUser.nextElementSibling.innerHTML}`;
   selectedUserId = selectedUser.id;
-  addConversation(selectedUser);
+  addChatRoomWith(selectedUser);
 });
 
 const conversationContainer = document.querySelector("#conversation-container");
-function addConversation(user) {
-  console.log('user',user);
+function addChatRoomWith(user) {
   let conversationRow = document.createElement("button");
   conversationRow.classList.add("list-group-item", "d-flex", "justify-content-between", "list-group-item-action", "active");
   
   conversationRow.innerHTML = `
     ${user.id}
-    <span class="badge bg-primary rounded-pill"></span>
+    <span class="badge bg-primary rounded-pill">0</span>
   `;
   conversationContainer.appendChild(conversationRow);
-} 
+  conversationRow.addEventListener("click", (event) => {
+    
+  });
+}
 
-function updateMessageContainer(message) {
+function addMessageToContainer(message) {
   let messageRow = document.createElement("div");
   messageRow.classList.add("p-2");
   messageRow.innerHTML = `${message.fromUserId}: ${message.text}`;
