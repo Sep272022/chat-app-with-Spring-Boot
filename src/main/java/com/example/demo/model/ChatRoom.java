@@ -15,9 +15,9 @@ public class ChatRoom {
   @NotBlank
   private String name;
   @NotBlank
-  private List<UserDTO> members;
+  private List<String> memberIds;
 
-  private List<ChatMessage> messages;
+  private List<String> messageIds;
 
   public String getId() {
     return id;
@@ -35,22 +35,23 @@ public class ChatRoom {
     this.name = name;
   }
 
-  public List<UserDTO> getMembers() {
-    return members;
+  public List<String> getMemberIds() {
+    return memberIds;
   }
 
-  public void setMembers(List<UserDTO> members) {
-    this.members = members;
+  public void setMemberIds(List<String> memberIds) {
+    this.memberIds = memberIds;
   }
 
-  public List<ChatMessage> getMessages() {
-    return messages;
+  public List<String> getMessageIds() {
+    return messageIds;
   }
 
-  public void setMessages(List<ChatMessage> messages) {
-    this.messages = messages;
+  public void setMessageIds(List<String> messageIds) {
+    this.messageIds = messageIds;
   }
 
+  
   
 
 }
