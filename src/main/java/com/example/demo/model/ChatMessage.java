@@ -22,6 +22,7 @@ public class ChatMessage {
   @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
   private Date date;
   
+  
 
   public String getFromUserId() {
     return fromUserId;
@@ -46,6 +47,12 @@ public class ChatMessage {
   }
   public void setDate(Date date) {
     this.date = date;
+  }
+  public String getId() {
+    return id;
+  }
+  public void setId(String id) {
+    this.id = id;
   }
   
 }
