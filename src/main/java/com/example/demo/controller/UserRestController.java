@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.UserDTO;
-import com.example.demo.service.ChatService;
+import com.example.demo.service.ChatMessageService;
 import com.example.demo.service.UserService;
 
 
@@ -27,7 +27,7 @@ public class UserRestController {
   private UserService userService;
 
   @Autowired
-  private ChatService chatService;
+  private ChatMessageService chatMessageService;
   
   @GetMapping("/current")
   public ResponseEntity<UserDTO> getCurrentUser() {
@@ -52,7 +52,7 @@ public class UserRestController {
   @GetMapping("/conversations")
   public ResponseEntity<List<ChatMessage>> getUserConversations(Principal principal) {
     UserDTO user = userService.findUserByEmail(principal.getName());
-    List<ChatMessage> messages = chatService.findAllByUserId(user.getId());
+    List<ChatMessage> messages = chatMessageService.findAllByUserId(user.getId());
     return ResponseEntity.ok(messages);
   }
 

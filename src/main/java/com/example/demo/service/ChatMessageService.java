@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.model.ChatMessage;
 
 @Service
-public class ChatService {
+public class ChatMessageService {
   
   @Autowired
   private MongoTemplate mongoTemplate;
