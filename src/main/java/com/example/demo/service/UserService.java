@@ -45,7 +45,7 @@ public class UserService {
   public UserDTO findUserById(String id) {
     return modelMapper.map(mongoTemplate.findById(id, User.class), UserDTO.class);
   }
-  
+
   public boolean verifyUser(User user) {
     Query query = new Query();
     query.addCriteria(Criteria.where("email").is(user.getEmail()));
@@ -62,6 +62,13 @@ public class UserService {
 
   public List<UserDTO> findAll() {
     return Arrays.asList(modelMapper.map(mongoTemplate.findAll(User.class), UserDTO[].class));
+  }
+
+  public List<UserDTO> findAllById(List<String> ids) {
+    List<User> users = ids.stream()
+        .filter(id -> mongoTemplate.exists(new Query(Criteria.where("id").is(id)), User.class))
+        .map(id -> mongoTemplate.findById(id, User.class)).toList();
+    return Arrays.asList(modelMapper.map(users, UserDTO[].class));
   }
 
 }

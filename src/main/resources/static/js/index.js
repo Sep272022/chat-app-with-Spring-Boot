@@ -127,7 +127,7 @@ talkButton.addEventListener("click", (event) => {
     alert("Please select a user to talk to");
     return;
   }
-  
+
   let selectedUserName = selectedUserInUserSelection.nextElementSibling.innerHTML;
   chatTitle.innerHTML = `Chat with ${selectedUserName}`;
   selectedUser = allUsers.find(user => user.id === selectedUserInUserSelection.id);
@@ -135,17 +135,37 @@ talkButton.addEventListener("click", (event) => {
 });
 
 const conversationContainer = document.querySelector("#conversation-container");
-function addChatRoomWith(userName) {
-  let conversationRow = document.createElement("div");
-  conversationRow.classList.add("d-flex", "justify-content-between");
-  conversationRow.innerHTML = `
-    <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
-    <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
-  `;
-  conversationContainer.appendChild(conversationRow);
-  conversationRow.addEventListener("click", (event) => {
-    
-  });
+async function addChatRoomWith(userName) {
+  const chatRooom = {
+    name: `Talk with ${userName}`,
+    members: [currentUser, selectedUser],
+    messages: []
+  }
+  try {
+    let res = await fetch("/chatrooms", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(chatRooom)
+    })
+    if (res.ok) {
+      let chatRoom = await res.json();
+      let conversationRow = document.createElement("div");
+      conversationRow.classList.add("d-flex", "justify-content-between");
+      conversationRow.innerHTML = `
+        <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
+        <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
+      `;
+      conversationContainer.appendChild(conversationRow);
+      conversationRow.addEventListener("click", (event) => {
+  
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Could not create chat room");
+  }
 }
 
 function addMessageToContainer(sender, message) {
