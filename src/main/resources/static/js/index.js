@@ -34,6 +34,7 @@ async function getCurrentUser() {
       currentUser = user;
       userNameSpan.innerHTML = `${user.name} (${user.roles[0].name})`;
       initSock();
+      populateChatRooms();
     }
   } catch (error) {
     console.error(error);
@@ -41,7 +42,6 @@ async function getCurrentUser() {
   }
 }
 getCurrentUser();
-console.log('currentUser', currentUser);
 
 let stompClient = null;
 function initSock() {
@@ -81,6 +81,21 @@ function establishConnection(stompClient) {
     console.log("STOMP error: " + error);
     sendButton.disabled = true;
   });
+}
+
+async function populateChatRooms() {
+  try {
+    let res = await fetch("/chatrooms?userId=" + currentUser.id);
+    if (res.ok) {
+      let chatRooms = await res.json();
+      chatRooms.forEach(chatRoom => {
+        addChatRoomButton(chatRoom.name);
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Could not get chat rooms");
+  }
 }
 
 let allUsers = null;
@@ -151,21 +166,25 @@ async function addChatRoomWith(userName) {
     })
     if (res.ok) {
       let chatRoom = await res.json();
-      let conversationRow = document.createElement("div");
-      conversationRow.classList.add("d-flex", "justify-content-between");
-      conversationRow.innerHTML = `
-        <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
-        <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
-      `;
-      conversationContainer.appendChild(conversationRow);
-      conversationRow.addEventListener("click", (event) => {
-  
-      });
+      addChatRoomButton(chatRoom.name);
     }
   } catch (error) {
     console.error(error);
     alert("Could not create chat room");
   }
+}
+
+function addChatRoomButton(userName) {
+  let conversationRow = document.createElement("div");
+  conversationRow.classList.add("d-flex", "justify-content-between");
+  conversationRow.innerHTML = `
+        <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
+        <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
+      `;
+  conversationContainer.appendChild(conversationRow);
+  conversationRow.addEventListener("click", (event) => {
+
+  });
 }
 
 function addMessageToContainer(sender, message) {
