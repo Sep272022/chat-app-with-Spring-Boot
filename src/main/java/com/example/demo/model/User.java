@@ -23,7 +23,15 @@ public class User {
   private Date birthday;
   private String profession;
   private Set<Role> roles;
+
+  private Set<String> chatRoomIds;
   
+  public Set<String> getChatRoomIds() {
+    return chatRoomIds;
+  }
+  public void setChatRoomIds(Set<String> chatRoomIds) {
+    this.chatRoomIds = chatRoomIds;
+  }
   public Set<Role> getRoles() {
     return roles;
   }

@@ -15,6 +15,10 @@ public class UserDTO {
   private String profession;
   private Set<Role> roles;
 
+  private Set<String> chatRoomIds;
+
+  
+
   public String getId() {
     return id;
   }
@@ -68,5 +72,11 @@ public class UserDTO {
   }
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
+  }
+  public Set<String> getChatRoomIds() {
+    return chatRoomIds;
+  }
+  public void setChatRoomIds(Set<String> chatRoomIds) {
+    this.chatRoomIds = chatRoomIds;
   }
 }
