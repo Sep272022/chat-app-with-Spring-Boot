@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.UserDTO;
+import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.UserService;
 
 @Controller
@@ -16,15 +17,14 @@ public class MessageController {
   private UserService userService;
 
   @Autowired
+  private ChatRoomService chatRoomService;
+
+  @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
 
   @MessageMapping("/chat") // this is the endpoint the client sends to
   // @SendTo("/topic/messages") // this is the endpoint the client subscribes to
   public ChatMessage getMessage(ChatMessage message) {
-    // System.out.println(message.getFromUserId());
-    // System.out.println(message.getToUserId());
-    // System.out.println(message.getText());
-    // System.out.println(message.getDate());
     handleChatMessage(message);
     return message; // this value is broadcast to all subscribers to the endpoint specified in
                     // @SendTo annotation above
@@ -41,11 +41,7 @@ public class MessageController {
       // handle if sender is not found
       return;
     }
-    // chatService.saveChatMessage(message);
-    System.out.println("from: " + sender.getEmail());
-    System.out.println("to: " + recipient.getEmail());
-    System.out.println("Message: " + message.getText());
-    System.out.println("Date: " + message.getDate());
+    chatRoomService.addMessageToChatRoom(message.getChatRoomId(), message);
     sendChatMessage(recipient, message);
   }
 

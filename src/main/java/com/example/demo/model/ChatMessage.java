@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import java.sql.Date;
+import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,6 +21,8 @@ public class ChatMessage {
   @NotBlank
   @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
   private Date date;
+  @NotBlank
+  private String chatRoomId;
   
   
 
@@ -54,5 +56,13 @@ public class ChatMessage {
   public void setId(String id) {
     this.id = id;
   }
+  public String getChatRoomId() {
+    return chatRoomId;
+  }
+  public void setChatRoomId(String chatRoomId) {
+    this.chatRoomId = chatRoomId;
+  }
+
+  
   
 }

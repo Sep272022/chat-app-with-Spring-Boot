@@ -24,29 +24,61 @@ public class ChatRoomService {
   private ModelMapper modelMapper;
 
   public ChatRoomDTO createChatRoom(ChatRoomDTO chatRoomDto) {
-    ChatRoom chatRoom = modelMapper.map(chatRoomDto, ChatRoom.class);
-    List<String> userIds = new ArrayList<>();
-    chatRoomDto
-      .getMembers()
-      .forEach(member -> {
-        userIds.add(member.getId());
-      });
-    chatRoom.setMemberIds(userIds);
-    List<String> chatRoomIds = new ArrayList<>();
-    chatRoomDto
-      .getMessages()
-      .forEach(message -> {
-        chatRoomIds.add(message.getId());
-      });
-    chatRoom.setMessageIds(chatRoomIds);
-    return modelMapper.map(mongoTemplate.save(chatRoom), ChatRoomDTO.class);
+    ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
+    ChatRoom savedChatRoom = mongoTemplate.save(chatRoom);
+    addMembersToChatRoom(savedChatRoom.getId(), chatRoomDto.getMembers().stream().map(UserDTO::getId).toList());
+    return modelMapper.map(savedChatRoom, ChatRoomDTO.class);
+  }
+
+  public void addMembersToChatRoom(String chatRoomId, List<String> memberIds) {
+    memberIds.forEach(id -> {
+      UserDTO user = userService.findUserById(id);
+      user.getChatRoomIds().add(chatRoomId);
+      userService.addChatRoomToUser(user);
+    });
+  }
+
+  public ChatRoomDTO addMessageToChatRoom(
+    String chatRoomId,
+    ChatMessage message
+  ) {
+    ChatRoomDTO chatRoom = findChatRoomById(chatRoomId);
+    if (chatRoom == null) {
+      return null;
+    }
+    chatRoom.getMessages().add(message);
+    return updateChatRoom(chatRoom);
   }
 
   public ChatRoomDTO addMessagesToChatRoom(
     String chatRoomId,
     List<ChatMessage> messages
   ) {
-    throw new UnsupportedOperationException();
+    ChatRoomDTO chatRoom = findChatRoomById(chatRoomId);
+    if (chatRoom == null) {
+      return null;
+    }
+    chatRoom.getMessages().addAll(messages);
+    return updateChatRoom(chatRoom);
+  }
+
+  public ChatRoomDTO updateChatRoom(ChatRoomDTO chatRoomDto) {
+    ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
+    return modelMapper.map(mongoTemplate.save(chatRoom), ChatRoomDTO.class);
+  }
+  
+  private ChatRoom convertChatRoomDTOTChatRoom(ChatRoomDTO chatRoomDto) {
+    ChatRoom chatRoom = modelMapper.map(chatRoomDto, ChatRoom.class);
+    List<String> userIds = chatRoomDto.getMembers().stream().map(UserDTO::getId).toList();
+    chatRoom.setMemberIds(userIds);
+    // List<String> chatRoomIds = new ArrayList<>();
+    // chatRoomDto
+    //   .getMessages()
+    //   .forEach(message -> {
+    //     chatRoomIds.add(message.getId());
+    //   });
+    // chatRoom.setMessageIds(chatRoomIds);
+    return chatRoom;
   }
 
   public ChatRoomDTO findChatRoomById(String id) {
@@ -65,13 +97,6 @@ public class ChatRoomService {
       chatRoomDTOs.add(findChatRoomById(id));
     });
     return chatRoomDTOs;
-  }
-
-  public ChatRoomDTO findChatRoomBySenderIdAndRecipientId(
-    String senderId,
-    String recipientId
-  ) {
-    throw new UnsupportedOperationException();
   }
 
   public void deleteChatRoomById(String id) {

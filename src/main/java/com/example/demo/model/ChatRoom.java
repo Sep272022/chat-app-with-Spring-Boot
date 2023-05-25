@@ -17,7 +17,7 @@ public class ChatRoom {
   @NotBlank
   private List<String> memberIds;
 
-  private List<String> messageIds;
+  private List<ChatMessage> messages;
 
   public String getId() {
     return id;
@@ -43,15 +43,14 @@ public class ChatRoom {
     this.memberIds = memberIds;
   }
 
-  public List<String> getMessageIds() {
-    return messageIds;
+  public List<ChatMessage> getMessages() {
+    return messages;
   }
 
-  public void setMessageIds(List<String> messageIds) {
-    this.messageIds = messageIds;
+  public void setMessages(List<ChatMessage> messages) {
+    this.messages = messages;
   }
 
-  
   
 
 }

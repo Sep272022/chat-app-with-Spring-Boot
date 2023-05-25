@@ -10,7 +10,8 @@ sendButton.addEventListener("click", (event) => {
     fromUserId: currentUser.id,
     toUserId: selectedUser.id,
     text: messageInput.value,
-    date: new Date()
+    date: new Date(),
+    chatRoomId: currentChatRoom.id
   }
   sendMessage(msg);
   addMessageToContainer(currentUser.name, msg);
@@ -98,21 +99,22 @@ async function populateChatRooms() {
   }
 }
 
+let modalNewConversation = document.getElementById("modal-new-conversation");
+modalNewConversation.addEventListener("show.bs.modal", (event) => {
+  let button = event.relatedTarget;
+  let recipient = button.getAttribute("data-bs-whatever");
+  fillUsersInModal();
+});
+
 let allUsers = null;
 const modalBodyAllUsers = document.querySelector("#modal-body-all-users");
-function fillUsersInModal() {
+async function fillUsersInModal() {
   modalBodyAllUsers.innerHTML = "";
-  fetch("/users/all")
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        throw new Error("Could not get users");
-      }
-    })
-    .then((users) => {
-      allUsers = users;
-      users.forEach((user) => {
+  try {
+    let res = await fetch("/users/all");
+    if (res.ok) {
+      allUsers = await res.json();
+      allUsers.forEach((user) => {
         if (user.email === currentUser.email) return;
         let userRow = document.createElement("div");
         userRow.classList.add("row");
@@ -122,15 +124,12 @@ function fillUsersInModal() {
         `;
         modalBodyAllUsers.appendChild(userRow);
       });
-    });
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Could not get users");
+  }
 }
-
-let modalNewConversation = document.getElementById("modal-new-conversation");
-modalNewConversation.addEventListener("show.bs.modal", (event) => {
-  let button = event.relatedTarget;
-  let recipient = button.getAttribute("data-bs-whatever");
-  fillUsersInModal();
-});
 
 let selectedUser = null;
 const talkButton = document.querySelector("#talk-button");
@@ -149,6 +148,7 @@ talkButton.addEventListener("click", (event) => {
   addChatRoomWith(selectedUser.name);
 });
 
+let currentChatRoom = null;
 const conversationContainer = document.querySelector("#conversation-container");
 async function addChatRoomWith(userName) {
   const chatRooom = {
@@ -165,8 +165,8 @@ async function addChatRoomWith(userName) {
       body: JSON.stringify(chatRooom)
     })
     if (res.ok) {
-      let chatRoom = await res.json();
-      addChatRoomButton(chatRoom.name);
+      currentChatRoom = await res.json();
+      addChatRoomButton(currentChatRoom.name);
     }
   } catch (error) {
     console.error(error);

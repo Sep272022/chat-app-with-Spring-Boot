@@ -38,6 +38,17 @@ public class UserService {
     return modelMapper.map(mongoTemplate.save(user), UserDTO.class);
   }
 
+  public UserDTO addChatRoomToUser(UserDTO user) {
+    Query query = new Query();
+    query.addCriteria(Criteria.where("id").is(user.getId()));
+    User foundUser = mongoTemplate.findOne(query, User.class);
+    if (foundUser != null) {
+      foundUser.setChatRoomIds(user.getChatRoomIds());
+      foundUser = mongoTemplate.save(foundUser);
+    }
+    return modelMapper.map(foundUser, UserDTO.class);
+  }
+
   public UserDTO findUserByEmail(String email) {
     Query query = new Query();
     query.addCriteria(Criteria.where("email").is(email));
