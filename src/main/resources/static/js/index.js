@@ -84,12 +84,15 @@ function establishConnection(stompClient) {
   });
 }
 
+let chatRooms = [];
 async function populateChatRooms() {
   try {
     let res = await fetch("/chatrooms?userId=" + currentUser.id);
     if (res.ok) {
-      let chatRooms = await res.json();
+      chatRooms = await res.json();
+      console.log('chatRooms', chatRooms);
       chatRooms.forEach(chatRoom => {
+        if (chatRoom == null) return;
         addChatRoomButton(chatRoom.name);
       });
     }
@@ -174,17 +177,23 @@ async function addChatRoomWith(userName) {
   }
 }
 
-function addChatRoomButton(userName) {
+function addChatRoomButton(chatRoomName) {
   let conversationRow = document.createElement("div");
   conversationRow.classList.add("d-flex", "justify-content-between");
   conversationRow.innerHTML = `
-        <input type="radio" class="btn-check" name="talk-partners" id="${userName}" autocomplete="off" checked>
-        <label class="btn btn-outline-primary w-100" for="${userName}">${userName}</label>
+        <input type="radio" class="btn-check" name="talk-partners" id="${chatRoomName}" autocomplete="off" checked>
+        <label class="btn btn-outline-primary w-100" for="${chatRoomName}">${chatRoomName}</label>
       `;
-  conversationContainer.appendChild(conversationRow);
   conversationRow.addEventListener("click", (event) => {
-
+    currentChatRoom = chatRooms.find(room => room.name === chatRoomName);
+    chatTitle.innerHTML = currentChatRoom.name;
+    messageContainer.innerHTML = "";
+    currentChatRoom.messages.forEach(message => {
+      let sender = currentChatRoom.members.find(user => user.id === message.fromUserId);
+      addMessageToContainer(sender.name, message);
+    });
   });
+  conversationContainer.appendChild(conversationRow);
 }
 
 function addMessageToContainer(sender, message) {
