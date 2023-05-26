@@ -42,11 +42,10 @@ public class MessageController {
       return;
     }
     chatRoomService.addMessageToChatRoom(message.getChatRoomId(), message);
-    sendChatMessage(recipient, message);
+    sendChatMessageToUser(recipient, message);
   }
 
-  private void sendChatMessage(UserDTO to, ChatMessage message) {
-    chatRoomService.addMessageToChatRoom(message.getChatRoomId(), message);
+  private void sendChatMessageToUser(UserDTO to, ChatMessage message) {
     simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", message);
   }
 
