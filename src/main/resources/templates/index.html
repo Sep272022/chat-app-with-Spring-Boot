@@ -64,17 +64,19 @@
             >
               Talk to...
             </button>
-            <div id="conversation-container" class="list-group d-grid gap-2 overflow-hidden">
-
-            </div>
+            <div
+              id="conversation-container"
+              class="list-group d-grid gap-2 overflow-hidden"
+            ></div>
           </div>
         </div>
         <div class="col right-section">
           <!-- the chat interface -->
           <div class="d-grid gap-2">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header d-flex justify-content-between">
                 <span id="chat-title">Talk</span>
+                <button class="btn btn-danger" id="leave-button">Leave</button>
               </div>
               <div class="card-body">
                 <div class="d-grid gap-2">
@@ -92,6 +94,7 @@
                       class="btn btn-outline-secondary"
                       type="button"
                       id="send-button"
+                      disabled
                     >
                       Send
                     </button>

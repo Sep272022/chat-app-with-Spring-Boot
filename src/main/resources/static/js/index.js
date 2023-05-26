@@ -146,7 +146,7 @@ talkButton.addEventListener("click", (event) => {
   }
 
   let selectedUserName = selectedUserInUserSelection.nextElementSibling.innerHTML;
-  chatTitle.innerHTML = `Chat with ${selectedUserName}`;
+  chatTitle.innerHTML = `${selectedUserName}`;
   selectedUser = allUsers.find(user => user.id === selectedUserInUserSelection.id);
   addChatRoomWith(selectedUser.name);
 });
@@ -155,7 +155,7 @@ let currentChatRoom = null;
 const conversationContainer = document.querySelector("#conversation-container");
 async function addChatRoomWith(userName) {
   const chatRooom = {
-    name: `Talk with ${userName}`,
+    name: "",
     members: [currentUser, selectedUser],
     messages: []
   }
@@ -178,6 +178,7 @@ async function addChatRoomWith(userName) {
 }
 
 function addChatRoomButton(chatRoomName) {
+  chatRoomName = (chatRoomName === null) ? currentChatRoom.members.filter(member => member.name !== currentUser.name) : chatRoomName;
   let conversationRow = document.createElement("div");
   conversationRow.classList.add("d-flex", "justify-content-between");
   conversationRow.innerHTML = `
@@ -185,7 +186,8 @@ function addChatRoomButton(chatRoomName) {
         <label class="btn btn-outline-primary w-100" for="${chatRoomName}">${chatRoomName}</label>
       `;
   conversationRow.addEventListener("click", (event) => {
-    currentChatRoom = chatRooms.find(room => room.name === chatRoomName);
+    currentChatRoom = chatRooms.find(room => room.name === chatRoomName); // BUG
+    selectedUser = currentChatRoom.members.find(member => member.name !== currentUser.name);
     chatTitle.innerHTML = currentChatRoom.name;
     messageContainer.innerHTML = "";
     currentChatRoom.messages.forEach(message => {
@@ -214,3 +216,34 @@ function disconnect() {
     stompClient = null;
   }
 }
+
+
+const leaveButton = document.querySelector("#leave-button");
+leaveButton.addEventListener("click", async (event) => {
+  try {
+    console.log('currentUser',currentUser);
+    console.log('currentChatRoom',currentChatRoom);
+    let res = await fetch(`/chatrooms/${currentUser.id}/leave/${currentChatRoom.id}`, {
+      method: "POST"
+    });
+    if (res.ok) {
+      let msg = {
+        fromUserId: currentUser.id,
+        toUserId: selectedUser.id,
+        text: `${currentUser.name} has left the chat`,
+        date: new Date(),
+        chatRoomId: currentChatRoom.id
+      }
+      sendMessage(msg);
+      chatRooms = chatRooms.filter(room => room.id !== currentChatRoom.id);
+      currentChatRoom = null;
+      messageContainer.innerHTML = "";
+      chatTitle.innerHTML = "";
+      conversationContainer.innerHTML = "";
+      populateChatRooms();
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Could not leave chat room");
+  }
+});
