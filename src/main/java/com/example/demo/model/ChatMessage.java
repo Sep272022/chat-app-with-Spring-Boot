@@ -14,7 +14,7 @@ public class ChatMessage {
   private String id;
   @NotBlank
   private String fromUserId;
-  @NotBlank
+  
   private String toUserId;
   @NotBlank
   private String text;
