@@ -12,7 +12,7 @@ public class ChatRoom {
   
   @Id
   private String id;
-  @NotBlank
+  
   private String name;
   @NotBlank
   private List<String> memberIds;
