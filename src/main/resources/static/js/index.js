@@ -93,7 +93,7 @@ async function populateChatRooms() {
       console.log('chatRooms', chatRooms);
       chatRooms.forEach(chatRoom => {
         if (chatRoom == null) return;
-        addChatRoomButton(chatRoom.name);
+        addChatRoomButton(chatRoom);
       });
     }
   } catch (error) {
@@ -169,7 +169,7 @@ async function addChatRoomWith(userName) {
     })
     if (res.ok) {
       currentChatRoom = await res.json();
-      addChatRoomButton(currentChatRoom.name);
+      addChatRoomButton(currentChatRoom);
     }
   } catch (error) {
     console.error(error);
@@ -177,17 +177,19 @@ async function addChatRoomWith(userName) {
   }
 }
 
-function addChatRoomButton(chatRoomName) {
-  chatRoomName = (chatRoomName === null) ? currentChatRoom.members.filter(member => member.name !== currentUser.name) : chatRoomName;
+function addChatRoomButton(chatRoom) {
+  let chatRoomName = chatRoom.name;
+  chatRoomName = (chatRoomName === "") ? chatRoom.members.filter(member => member.name !== currentUser.name)[0].name : chatRoomName;
   let conversationRow = document.createElement("div");
   conversationRow.classList.add("d-flex", "justify-content-between");
   conversationRow.innerHTML = `
         <input type="radio" class="btn-check" name="talk-partners" id="${chatRoomName}" autocomplete="off" checked>
         <label class="btn btn-outline-primary w-100" for="${chatRoomName}">${chatRoomName}</label>
       `;
+      
   conversationRow.addEventListener("click", (event) => {
-    currentChatRoom = chatRooms.find(room => room.name === chatRoomName); // BUG
-    selectedUser = currentChatRoom.members.find(member => member.name !== currentUser.name);
+    currentChatRoom = chatRooms.find(room => room.id === chatRoom.id);
+    selectedUser = currentChatRoom.members.find(member => member.id !== currentUser.id);
     chatTitle.innerHTML = currentChatRoom.name;
     messageContainer.innerHTML = "";
     currentChatRoom.messages.forEach(message => {
@@ -221,8 +223,8 @@ function disconnect() {
 const leaveButton = document.querySelector("#leave-button");
 leaveButton.addEventListener("click", async (event) => {
   try {
-    console.log('currentUser',currentUser);
-    console.log('currentChatRoom',currentChatRoom);
+    console.log('currentUser', currentUser);
+    console.log('currentChatRoom', currentChatRoom);
     let res = await fetch(`/chatrooms/${currentUser.id}/leave/${currentChatRoom.id}`, {
       method: "POST"
     });
