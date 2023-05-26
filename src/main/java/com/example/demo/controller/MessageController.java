@@ -46,7 +46,7 @@ public class MessageController {
   }
 
   private void sendChatMessage(UserDTO to, ChatMessage message) {
-    System.out.println("Sending message to: " + to.getEmail());
+    chatRoomService.addMessageToChatRoom(message.getChatRoomId(), message);
     simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", message);
   }
 
