@@ -24,7 +24,7 @@ public class ChatRoomService {
   private ModelMapper modelMapper;
 
   public ChatRoomDTO createChatRoom(ChatRoomDTO chatRoomDto) {
-    ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
+    ChatRoom chatRoom = modelMapper.map(chatRoomDto, ChatRoom.class);
     ChatRoom savedChatRoom = mongoTemplate.save(chatRoom);
     addMembersToChatRoom(
       savedChatRoom.getId(),
@@ -66,26 +66,8 @@ public class ChatRoomService {
   }
 
   public ChatRoomDTO updateChatRoom(ChatRoomDTO chatRoomDto) {
-    ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
-    return modelMapper.map(mongoTemplate.save(chatRoom), ChatRoomDTO.class);
-  }
-
-  private ChatRoom convertChatRoomDTOTChatRoom(ChatRoomDTO chatRoomDto) {
     ChatRoom chatRoom = modelMapper.map(chatRoomDto, ChatRoom.class);
-    List<String> userIds = chatRoomDto
-      .getMembers()
-      .stream()
-      .map(UserDTO::getId)
-      .toList();
-    chatRoom.setMemberIds(userIds);
-    // List<String> chatRoomIds = new ArrayList<>();
-    // chatRoomDto
-    //   .getMessages()
-    //   .forEach(message -> {
-    //     chatRoomIds.add(message.getId());
-    //   });
-    // chatRoom.setMessageIds(chatRoomIds);
-    return chatRoom;
+    return modelMapper.map(mongoTemplate.save(chatRoom), ChatRoomDTO.class);
   }
 
   public ChatRoomDTO findChatRoomById(String id) {
