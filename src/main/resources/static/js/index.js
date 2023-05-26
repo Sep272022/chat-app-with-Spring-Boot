@@ -1,4 +1,3 @@
-
 const messageContainer = document.querySelector("#message-container");
 const chatTitle = document.querySelector("#chat-title");
 const messageInput = document.querySelector("#message-input");
@@ -11,19 +10,18 @@ sendButton.addEventListener("click", (event) => {
     toUserId: selectedUser.id,
     text: messageInput.value,
     date: new Date(),
-    chatRoomId: currentChatRoom.id
-  }
-  sendMessage(msg);
+    chatRoomId: currentChatRoom.id,
+  };
+  sendMessageToServer(msg);
   addMessageToContainer(currentUser.name, msg);
   messageInput.value = "";
 });
 
-document.addEventListener('keydown', (event) => {
+document.addEventListener("keydown", (event) => {
   if (document.activeElement === messageInput && event.key === "Enter") {
     sendButton.click();
   }
-})
-
+});
 
 const userNameSpan = document.querySelector("#user-name");
 let currentUser = null;
@@ -49,7 +47,7 @@ function initSock() {
   connect();
   stompClient.debug = (str) => {
     // console.log(str);
-  }
+  };
   establishConnection(stompClient);
 }
 
@@ -62,36 +60,42 @@ function connect() {
 }
 
 function establishConnection(stompClient) {
-  stompClient.connect({}, (frame) => {
-    // console.log("Connected: " + frame);
-    sendButton.disabled = false;
+  stompClient.connect(
+    {},
+    (frame) => {
+      // console.log("Connected: " + frame);
+      sendButton.disabled = false;
 
-    stompClient.subscribe(
-      "/user/topic/messages",
-      (message) => { // callback function for when a message is received from the server
-        console.log("received message: " + message);
-        let msg = JSON.parse(message.body);
-        let sender = allUsers.find(user => user.id === msg.fromUserId);
-        addMessageToContainer(sender.name, msg);
-      },
-      (error) => { // callback function for when an error is received from the server
-        console.log("STOMP error: " + error);
-      }
-    );
-  }, (error) => {
-    console.log("STOMP error: " + error);
-    sendButton.disabled = true;
-  });
+      stompClient.subscribe(
+        "/user/topic/messages",
+        (message) => {
+          // callback function for when a message is received from the server
+          console.log("received message: " + message);
+          let msg = JSON.parse(message.body);
+          let sender = allUsers.find((user) => user.id === msg.fromUserId);
+          addMessageToContainer(sender.name, msg);
+        },
+        (error) => {
+          // callback function for when an error is received from the server
+          console.log("STOMP error: " + error);
+        }
+      );
+    },
+    (error) => {
+      console.log("STOMP error: " + error);
+      sendButton.disabled = true;
+    }
+  );
 }
 
 let chatRooms = [];
 async function populateChatRooms() {
+  conversationContainer.innerHTML = "";
   try {
     let res = await fetch("/chatrooms?userId=" + currentUser.id);
     if (res.ok) {
       chatRooms = await res.json();
-      console.log('chatRooms', chatRooms);
-      chatRooms.forEach(chatRoom => {
+      chatRooms.forEach((chatRoom) => {
         if (chatRoom == null) return;
         addChatRoomButton(chatRoom);
       });
@@ -145,9 +149,12 @@ talkButton.addEventListener("click", (event) => {
     return;
   }
 
-  let selectedUserName = selectedUserInUserSelection.nextElementSibling.innerHTML;
+  let selectedUserName =
+    selectedUserInUserSelection.nextElementSibling.innerHTML;
   chatTitle.innerHTML = `${selectedUserName}`;
-  selectedUser = allUsers.find(user => user.id === selectedUserInUserSelection.id);
+  selectedUser = allUsers.find(
+    (user) => user.id === selectedUserInUserSelection.id
+  );
   addChatRoomWith(selectedUser.name);
 });
 
@@ -157,16 +164,16 @@ async function addChatRoomWith(userName) {
   const chatRooom = {
     name: "",
     members: [currentUser, selectedUser],
-    messages: []
-  }
+    messages: [],
+  };
   try {
     let res = await fetch("/chatrooms", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(chatRooom)
-    })
+      body: JSON.stringify(chatRooom),
+    });
     if (res.ok) {
       currentChatRoom = await res.json();
       addChatRoomButton(currentChatRoom);
@@ -179,25 +186,36 @@ async function addChatRoomWith(userName) {
 
 function addChatRoomButton(chatRoom) {
   let chatRoomName = chatRoom.name;
-  chatRoomName = (chatRoomName === "") ? chatRoom.members.filter(member => member.name !== currentUser.name)[0].name : chatRoomName;
-  let conversationRow = document.createElement("div");
-  conversationRow.classList.add("d-flex", "justify-content-between");
-  conversationRow.innerHTML = `
-        <input type="radio" class="btn-check" name="talk-partners" id="${chatRoomName}" autocomplete="off" checked>
-        <label class="btn btn-outline-primary w-100" for="${chatRoomName}">${chatRoomName}</label>
+  if (chatRoom.members.length === 1) {
+    chatRoomName = "Empty";
+  } else {
+    chatRoomName =
+      chatRoomName === ""
+        ? chatRoom.members.find((member) => member.id != currentUser.id).name
+        : chatRoomName;
+  }
+  let chatRoomRow = document.createElement("div");
+  chatRoomRow.classList.add("d-flex", "justify-content-between");
+  chatRoomRow.innerHTML = `
+        <input type="radio" class="btn-check" name="talk-partners" id="${chatRoom.id}" autocomplete="off" checked>
+        <label class="btn btn-outline-primary w-100" for="${chatRoom.id}">${chatRoomName}</label>
       `;
-      
-  conversationRow.addEventListener("click", (event) => {
-    currentChatRoom = chatRooms.find(room => room.id === chatRoom.id);
-    selectedUser = currentChatRoom.members.find(member => member.id !== currentUser.id);
+
+  chatRoomRow.addEventListener("click", (event) => {
+    currentChatRoom = chatRooms.find((room) => room.id === chatRoom.id);
+    selectedUser = currentChatRoom.members.find(
+      (member) => member.id !== currentUser.id
+    );
     chatTitle.innerHTML = currentChatRoom.name;
     messageContainer.innerHTML = "";
-    currentChatRoom.messages.forEach(message => {
-      let sender = currentChatRoom.members.find(user => user.id === message.fromUserId);
-      addMessageToContainer(sender.name, message);
+    currentChatRoom.messages.forEach((message) => {
+      let sender = currentChatRoom.members.find(
+        (user) => user.id === message.fromUserId
+      );
+      addMessageToContainer(sender.name, message); // TODO: handle if sender is null
     });
   });
-  conversationContainer.appendChild(conversationRow);
+  conversationContainer.prepend(chatRoomRow);
 }
 
 function addMessageToContainer(sender, message) {
@@ -208,7 +226,7 @@ function addMessageToContainer(sender, message) {
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
 
-function sendMessage(message) {
+function sendMessageToServer(message) {
   stompClient.send("/app/chat", {}, JSON.stringify(message));
 }
 
@@ -219,25 +237,25 @@ function disconnect() {
   }
 }
 
-
 const leaveButton = document.querySelector("#leave-button");
 leaveButton.addEventListener("click", async (event) => {
   try {
-    console.log('currentUser', currentUser);
-    console.log('currentChatRoom', currentChatRoom);
-    let res = await fetch(`/chatrooms/${currentUser.id}/leave/${currentChatRoom.id}`, {
-      method: "POST"
-    });
+    let res = await fetch(
+      `/chatrooms/${currentUser.id}/leave/${currentChatRoom.id}`,
+      {
+        method: "POST",
+      }
+    );
     if (res.ok) {
       let msg = {
         fromUserId: currentUser.id,
         toUserId: selectedUser.id,
         text: `${currentUser.name} has left the chat`,
         date: new Date(),
-        chatRoomId: currentChatRoom.id
-      }
-      sendMessage(msg);
-      chatRooms = chatRooms.filter(room => room.id !== currentChatRoom.id);
+        chatRoomId: currentChatRoom.id,
+      };
+      sendMessageToServer(msg);
+      chatRooms = chatRooms.filter((room) => room.id !== currentChatRoom.id);
       currentChatRoom = null;
       messageContainer.innerHTML = "";
       chatTitle.innerHTML = "";
