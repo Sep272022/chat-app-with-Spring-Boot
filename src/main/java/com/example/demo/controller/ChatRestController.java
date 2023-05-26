@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,5 +33,11 @@ public class ChatRestController {
   @GetMapping("/chatrooms")
   public ResponseEntity<List<ChatRoomDTO>> getAllChatRooms(@RequestParam(value = "userId", required = true) String userId) {
     return ResponseEntity.ok(chatRoomService.findChatRoomsByUserId(userId));
+  }
+
+  @PostMapping("chatrooms/{userId}/leave/{chatRoomId}")
+  public ResponseEntity<ChatRoomDTO> leaveChatRoom(@PathVariable String userId, @PathVariable String chatRoomId) {
+    System.out.println("userId: " + userId + ", chatRoomId: " + chatRoomId);
+    return ResponseEntity.ok(chatRoomService.leaveChatRoom(userId, chatRoomId));
   }
 }
