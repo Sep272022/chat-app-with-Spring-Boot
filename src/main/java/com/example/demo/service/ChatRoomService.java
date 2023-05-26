@@ -26,7 +26,10 @@ public class ChatRoomService {
   public ChatRoomDTO createChatRoom(ChatRoomDTO chatRoomDto) {
     ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
     ChatRoom savedChatRoom = mongoTemplate.save(chatRoom);
-    addMembersToChatRoom(savedChatRoom.getId(), chatRoomDto.getMembers().stream().map(UserDTO::getId).toList());
+    addMembersToChatRoom(
+      savedChatRoom.getId(),
+      chatRoomDto.getMembers().stream().map(UserDTO::getId).toList()
+    );
     return modelMapper.map(savedChatRoom, ChatRoomDTO.class);
   }
 
@@ -34,7 +37,7 @@ public class ChatRoomService {
     memberIds.forEach(id -> {
       UserDTO user = userService.findUserById(id);
       user.getChatRoomIds().add(chatRoomId);
-      userService.addChatRoomToUser(user);
+      userService.updateChatRoomToUser(user);
     });
   }
 
@@ -66,10 +69,14 @@ public class ChatRoomService {
     ChatRoom chatRoom = convertChatRoomDTOTChatRoom(chatRoomDto);
     return modelMapper.map(mongoTemplate.save(chatRoom), ChatRoomDTO.class);
   }
-  
+
   private ChatRoom convertChatRoomDTOTChatRoom(ChatRoomDTO chatRoomDto) {
     ChatRoom chatRoom = modelMapper.map(chatRoomDto, ChatRoom.class);
-    List<String> userIds = chatRoomDto.getMembers().stream().map(UserDTO::getId).toList();
+    List<String> userIds = chatRoomDto
+      .getMembers()
+      .stream()
+      .map(UserDTO::getId)
+      .toList();
     chatRoom.setMemberIds(userIds);
     // List<String> chatRoomIds = new ArrayList<>();
     // chatRoomDto
@@ -99,8 +106,29 @@ public class ChatRoomService {
     return chatRoomDTOs;
   }
 
+  public ChatRoomDTO leaveChatRoom(String userId, String chatRoomId) {
+    ChatRoomDTO foundChatRoom = findChatRoomById(chatRoomId);
+    List<UserDTO> newMembers = foundChatRoom
+      .getMembers()
+      .stream()
+      .filter(member -> !member.getId().equals(userId))
+      .toList();
+    foundChatRoom.setMembers(newMembers);
+    UserDTO user = userService.findUserById(userId);
+    user.getChatRoomIds().remove(chatRoomId);
+    userService.updateChatRoomToUser(user);
+    return updateChatRoom(foundChatRoom);
+  }
+
   public void deleteChatRoomById(String id) {
-    mongoTemplate.remove(findChatRoomById(id));
+    ChatRoomDTO foundChatRoom = findChatRoomById(id);
+    foundChatRoom
+      .getMembers()
+      .forEach(member -> {
+        member.getChatRoomIds().remove(id);
+        userService.updateChatRoomToUser(member);
+      });
+    mongoTemplate.remove(foundChatRoom);
   }
 
   public List<ChatRoomDTO> findChatRoomsByUserId(String userId) {
