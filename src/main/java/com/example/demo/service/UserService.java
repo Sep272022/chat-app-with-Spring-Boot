@@ -38,7 +38,7 @@ public class UserService {
     return modelMapper.map(mongoTemplate.save(user), UserDTO.class);
   }
 
-  public UserDTO addChatRoomToUser(UserDTO user) {
+  public UserDTO updateChatRoomToUser(UserDTO user) {
     Query query = new Query();
     query.addCriteria(Criteria.where("id").is(user.getId()));
     User foundUser = mongoTemplate.findOne(query, User.class);
