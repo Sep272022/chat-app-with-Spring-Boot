@@ -23,7 +23,15 @@ public class User {
   private Date birthday;
   private String profession;
   private Set<Role> roles;
+
+  private Set<String> chatRoomIds;
   
+  public Set<String> getChatRoomIds() {
+    return chatRoomIds;
+  }
+  public void setChatRoomIds(Set<String> chatRoomIds) {
+    this.chatRoomIds = chatRoomIds;
+  }
   public Set<Role> getRoles() {
     return roles;
   }
@@ -83,6 +91,9 @@ public class User {
     return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", gender=" + gender
         + ", note=" + note + ", married=" + married + ", birthday=" + birthday + ", profession=" + profession
         + ", roles=" + roles + "]";
+  }
+  public String getId() {
+    return id;
   }
 
   

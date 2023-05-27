@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.model.User;
-import com.example.demo.model.UserDTO;
 import com.example.demo.service.UserService;
 import com.example.demo.validator.UserValidator;
 
@@ -30,7 +29,7 @@ public class AuthController {
 
   @GetMapping("/register")
   public String showForm(Model model) {
-    model.addAttribute("user", new UserDTO());
+    model.addAttribute("user", new User());
 
     List<String> listProfession = Arrays.asList("Developer", "Tester", "Architect");
     model.addAttribute("listProfession", listProfession);
@@ -46,7 +45,7 @@ public class AuthController {
       System.out.println(bindingResult.getAllErrors());
       return "register_form";
     }
-    user = userService.createUser(user);
+    userService.createUser(user);
 
     return "redirect:/login?register-success";
   }
