@@ -152,18 +152,19 @@ function addChatRoomButton(chatRoom) {
       `;
 
   chatRoomRow.addEventListener("click", (event) => {
-    currentChatRoom = chatRooms.find((room) => room.id === chatRoom.id);
-    selectedUser = currentChatRoom.members.find(
+    // let foundChatRoom = chatRooms.find((room) => room.id === chatRoom.id);
+    selectedUser = chatRoom.members.find(
       (member) => member.id !== currentUser.id
     );
-    chatTitle.innerHTML = currentChatRoom.name;
+    chatTitle.innerHTML = chatRoom.name;
     messageContainer.innerHTML = "";
-    currentChatRoom.messages.forEach((message) => {
-      let sender = currentChatRoom.members.find(
+    chatRoom.messages.forEach((message) => {
+      let sender = chatRoom.members.find(
         (user) => user.id === message.fromUserId
       );
-      addMessageToContainer(sender.name, message); // TODO: handle if sender is null
+      addMessageToContainer(sender.name, message);
     });
+    currentChatRoom = chatRoom;
   });
   conversationContainer.prepend(chatRoomRow);
 }
