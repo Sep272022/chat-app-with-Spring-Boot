@@ -47,7 +47,7 @@ async function populateChatRooms() {
     let res = await fetch("/chatrooms?userId=" + currentUser.id);
     if (res.ok) {
       chatRooms = await res.json();
-      console.log('chatRooms',chatRooms);
+      console.log('chatRooms', chatRooms);
       chatRooms.forEach((chatRoom) => {
         if (chatRoom == null) return;
         addChatRoomButton(chatRoom);
@@ -102,22 +102,23 @@ talkButton.addEventListener("click", (event) => {
     return;
   }
 
-  let selectedUserName =
-    selectedUserInUserSelection.nextElementSibling.innerHTML;
-  chatTitle.innerHTML = `${selectedUserName}`;
   selectedUser = allUsers.find(
     (user) => user.id === selectedUserInUserSelection.id
   );
-  addChatRoomWith(selectedUser.name);
 
-  //TODO: if chatroom already exists, select it
+  let chatRoom = chatRooms.find((room) => room.members.find((member) => member.id === selectedUser.id));
+  if (chatRoom !== undefined) {
+    document.getElementById(`${chatRoom.id}`).click();
+  } else {
+    addChatRoomWith(selectedUser);
+  }
 });
 
 let currentChatRoom = null;
-async function addChatRoomWith(userName) {
+async function addChatRoomWith(user) {
   const chatRooom = {
     name: "",
-    members: [currentUser, selectedUser],
+    members: [currentUser, user],
     messages: [],
   };
   try {
