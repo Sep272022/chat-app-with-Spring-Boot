@@ -1,4 +1,5 @@
 
+import { getCurrentUser } from "./currentUser.js";
 import { SocketHandler } from "./socket.js";
 let url = location.protocol + "//" + location.host + "/websocket-endpoint";
 const socket = new SocketHandler(url, (message) => {
@@ -9,6 +10,9 @@ const messageContainer = document.querySelector("#message-container");
 const chatTitle = document.querySelector("#chat-title");
 const messageInput = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
+const conversationContainer = document.querySelector("#conversation-container");
+const userNameSpan = document.querySelector("#user-name");
+
 sendButton.disabled = true;
 sendButton.addEventListener("click", (event) => {
   if (messageInput.value === "") return;
@@ -30,23 +34,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-const userNameSpan = document.querySelector("#user-name");
-let currentUser = null;
-async function getCurrentUser() {
-  try {
-    let res = await fetch("/users/current");
-    if (res.ok) {
-      let user = await res.json();
-      currentUser = user;
-      userNameSpan.innerHTML = `${user.name} (${user.roles[0].name})`;
-      populateChatRooms();
-    }
-  } catch (error) {
-    console.error(error);
-    window.location.href = "/error";
-  }
-}
-getCurrentUser();
+let currentUser = await getCurrentUser();
+userNameSpan.innerHTML = `${currentUser.name} (${currentUser.roles[0].name})`;
+populateChatRooms();
 
 let chatRooms = [];
 async function populateChatRooms() {
@@ -120,7 +110,6 @@ talkButton.addEventListener("click", (event) => {
 });
 
 let currentChatRoom = null;
-const conversationContainer = document.querySelector("#conversation-container");
 async function addChatRoomWith(userName) {
   const chatRooom = {
     name: "",
@@ -188,16 +177,9 @@ function addMessageToContainer(sender, message) {
 }
 
 function sendMessageToServer(message) {
-  // stompClient.send("/app/chat", {}, JSON.stringify(message));
   socket.sendMessage(message);
 }
 
-// function disconnect() {
-//   if (stompClient !== null) {
-//     stompClient.disconnect();
-//     stompClient = null;
-//   }
-// }
 
 const leaveButton = document.querySelector("#leave-button");
 leaveButton.addEventListener("click", async (event) => {
