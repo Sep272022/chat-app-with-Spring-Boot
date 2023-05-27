@@ -1,6 +1,8 @@
 
 import { getCurrentUser } from "./currentUser.js";
 import { SocketHandler } from "./socket.js";
+import { getFormattedTime } from "./time.js";
+
 let url = location.protocol + "//" + location.host + "/websocket-endpoint";
 const socket = new SocketHandler(url, (message) => {
   addMessageToContainer(message.fromUser.name, message);
@@ -107,6 +109,8 @@ talkButton.addEventListener("click", (event) => {
     (user) => user.id === selectedUserInUserSelection.id
   );
   addChatRoomWith(selectedUser.name);
+
+  //TODO: if chatroom already exists, select it
 });
 
 let currentChatRoom = null;
@@ -137,12 +141,12 @@ async function addChatRoomWith(userName) {
 function addChatRoomButton(chatRoom) {
   let chatRoomName = chatRoom.name;
   if (chatRoom.members.length === 1) {
-    chatRoomName = "Empty";
+    chatRoomName = "(Empty)";
   } else {
     chatRoomName =
       chatRoomName === ""
-        ? chatRoom.members.find((member) => member.id != currentUser.id).name
-        : chatRoomName;
+        ? chatRoom.members.find((member) => member.id !== currentUser.id).name
+        : "Failed to load name";
   }
   let chatRoomRow = document.createElement("div");
   chatRoomRow.classList.add("d-flex", "justify-content-between");
@@ -156,7 +160,7 @@ function addChatRoomButton(chatRoom) {
     selectedUser = chatRoom.members.find(
       (member) => member.id !== currentUser.id
     );
-    chatTitle.innerHTML = chatRoom.name;
+    chatTitle.innerHTML = chatRoomName;
     messageContainer.innerHTML = "";
     chatRoom.messages.forEach((message) => {
       let sender = chatRoom.members.find(
@@ -172,7 +176,16 @@ function addChatRoomButton(chatRoom) {
 function addMessageToContainer(sender, message) {
   let messageRow = document.createElement("div");
   messageRow.classList.add("p-2");
-  messageRow.innerHTML = `${sender}: ${message.text}`;
+
+  let messageTitle = document.createElement("div");
+  messageTitle.classList.add("fw-bold");
+  messageTitle.innerHTML = `${sender} (${getFormattedTime(message.date)}): `;
+
+  let messageText = document.createElement("span");
+  messageText.innerHTML = `${message.text}`;
+
+  messageRow.appendChild(messageTitle);
+  messageRow.appendChild(messageText);
   messageContainer.appendChild(messageRow);
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
