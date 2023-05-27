@@ -1,3 +1,10 @@
+
+import { SocketHandler } from "./socket.js";
+let url = location.protocol + "//" + location.host + "/websocket-endpoint";
+const socket = new SocketHandler(url, (message) => {
+  addMessageToContainer(message.fromUser.name, message);
+});
+
 const messageContainer = document.querySelector("#message-container");
 const chatTitle = document.querySelector("#chat-title");
 const messageInput = document.querySelector("#message-input");
@@ -32,7 +39,6 @@ async function getCurrentUser() {
       let user = await res.json();
       currentUser = user;
       userNameSpan.innerHTML = `${user.name} (${user.roles[0].name})`;
-      initSock();
       populateChatRooms();
     }
   } catch (error) {
@@ -42,52 +48,6 @@ async function getCurrentUser() {
 }
 getCurrentUser();
 
-let stompClient = null;
-function initSock() {
-  connect();
-  stompClient.debug = (str) => {
-    // console.log(str);
-  };
-  establishConnection(stompClient);
-}
-
-function connect() {
-  let url = location.protocol + "//" + location.host + "/websocket-endpoint";
-  // let socket = new WebSocket("ws://localhost:8080//websocket-endpoint");
-  let sockjs = new SockJS(url);
-  stompClient = Stomp.over(sockjs);
-  // console.log("Connecting to " + url);
-}
-
-function establishConnection(stompClient) {
-  stompClient.connect(
-    {},
-    (frame) => {
-      // console.log("Connected: " + frame);
-      sendButton.disabled = false;
-
-      stompClient.subscribe(
-        "/user/topic/messages",
-        (message) => {
-          // callback function for when a message is received from the server
-          console.log("received message: " + message);
-          let msg = JSON.parse(message.body);
-          let sender = allUsers.find((user) => user.id === msg.fromUserId);
-          addMessageToContainer(sender.name, msg);
-        },
-        (error) => {
-          // callback function for when an error is received from the server
-          console.log("STOMP error: " + error);
-        }
-      );
-    },
-    (error) => {
-      console.log("STOMP error: " + error);
-      sendButton.disabled = true;
-    }
-  );
-}
-
 let chatRooms = [];
 async function populateChatRooms() {
   conversationContainer.innerHTML = "";
@@ -95,6 +55,7 @@ async function populateChatRooms() {
     let res = await fetch("/chatrooms?userId=" + currentUser.id);
     if (res.ok) {
       chatRooms = await res.json();
+      console.log('chatRooms',chatRooms);
       chatRooms.forEach((chatRoom) => {
         if (chatRoom == null) return;
         addChatRoomButton(chatRoom);
@@ -227,15 +188,16 @@ function addMessageToContainer(sender, message) {
 }
 
 function sendMessageToServer(message) {
-  stompClient.send("/app/chat", {}, JSON.stringify(message));
+  // stompClient.send("/app/chat", {}, JSON.stringify(message));
+  socket.sendMessage(message);
 }
 
-function disconnect() {
-  if (stompClient !== null) {
-    stompClient.disconnect();
-    stompClient = null;
-  }
-}
+// function disconnect() {
+//   if (stompClient !== null) {
+//     stompClient.disconnect();
+//     stompClient = null;
+//   }
+// }
 
 const leaveButton = document.querySelector("#leave-button");
 leaveButton.addEventListener("click", async (event) => {
