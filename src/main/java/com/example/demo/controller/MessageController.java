@@ -6,18 +6,23 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.example.demo.model.ChatMessage;
+import com.example.demo.model.ChatMessageDTO;
 import com.example.demo.model.UserDTO;
+import com.example.demo.service.ChatMessageService;
 import com.example.demo.service.ChatRoomService;
 import com.example.demo.service.UserService;
 
 @Controller
 public class MessageController {
-  
+
   @Autowired
   private UserService userService;
 
   @Autowired
   private ChatRoomService chatRoomService;
+
+  @Autowired
+  private ChatMessageService chatMessageService;
 
   @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
@@ -46,7 +51,8 @@ public class MessageController {
   }
 
   private void sendChatMessageToUser(UserDTO to, ChatMessage message) {
-    simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", message);
+    ChatMessageDTO chatMessageDTO = chatMessageService.convertChatMessageToDTO(message);
+    simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", chatMessageDTO);
   }
 
 }
