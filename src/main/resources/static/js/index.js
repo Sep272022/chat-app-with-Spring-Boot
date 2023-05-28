@@ -5,7 +5,26 @@ import { getFormattedTime } from "./time.js";
 
 let url = location.protocol + "//" + location.host + "/websocket-endpoint";
 const socket = new SocketHandler(url, (message) => {
-  addMessageToContainer(message.fromUser.name, message);
+  if (message.chatRoomId === currentChatRoom.id) {
+    let chatRoom = chatRooms.find((room) => room.id === message.chatRoomId);
+    chatRoom.messages.push(message);
+    let senderName = chatRoom.members.find((member) => member.id === message.fromUserId).name;
+    addMessageToContainer(senderName, message);
+  } else {
+    let chatRoom = chatRooms.find((room) => room.id === message.chatRoomId);
+    if (chatRoom === undefined) { // new chat room created by other user
+      chatRoom = {
+        id: message.chatRoomId,
+        name: "",
+        members: [message.fromUser, message.toUser],
+        messages: [message],
+      };
+      chatRooms.push(chatRoom);
+      addChatRoomButton(chatRoom);
+    } else {
+      chatRoom.messages.push(message);
+    }
+  }
 });
 
 const messageContainer = document.querySelector("#message-container");
@@ -61,8 +80,6 @@ async function populateChatRooms() {
 
 let modalNewConversation = document.getElementById("modal-new-conversation");
 modalNewConversation.addEventListener("show.bs.modal", (event) => {
-  let button = event.relatedTarget;
-  let recipient = button.getAttribute("data-bs-whatever");
   fillUsersInModal();
 });
 
@@ -167,20 +184,20 @@ function addChatRoomButton(chatRoom) {
       let sender = chatRoom.members.find(
         (user) => user.id === message.fromUserId
       );
-      addMessageToContainer(sender.name, message);
+      addMessageToContainer(sender === undefined ? "Unknown" : sender.name, message);
     });
     currentChatRoom = chatRoom;
   });
   conversationContainer.prepend(chatRoomRow);
 }
 
-function addMessageToContainer(sender, message) {
+function addMessageToContainer(senderName, message) {
   let messageRow = document.createElement("div");
   messageRow.classList.add("p-2");
 
   let messageTitle = document.createElement("div");
   messageTitle.classList.add("fw-bold");
-  messageTitle.innerHTML = `${sender} (${getFormattedTime(message.date)}): `;
+  messageTitle.innerHTML = `${senderName} (${getFormattedTime(message.date)}): `;
 
   let messageText = document.createElement("span");
   messageText.innerHTML = `${message.text}`;
