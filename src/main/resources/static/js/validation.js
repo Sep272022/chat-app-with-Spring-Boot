@@ -43,23 +43,23 @@ checkButton.addEventListener('click', (e) => {
 
 function checkEmailAvailable(email) {
   fetch("/check_email?email=" + email)
-  .then(res => {
-    if (res.ok) {
-      return res.json();
-    } else {
-      throw new Error("User email is not available");
-    }
-  }).then(inUse => {
-    if (inUse) {
-      emailCheckSuccess.hidden = false;
-      emailCheckFailure.hidden = true;
-    } else {
-      emailCheckSuccess.hidden = true;
-      emailCheckFailure.hidden = false;
-    }
-  }).catch(err => {
-    alert(err.message);
-  });
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw new Error("Error occurred while checking email");
+      }
+    }).then(inUse => {
+      if (inUse) {
+        emailCheckSuccess.hidden = false;
+        emailCheckFailure.hidden = true;
+      } else {
+        emailCheckSuccess.hidden = true;
+        emailCheckFailure.hidden = false;
+      }
+    }).catch(err => {
+      alert(err.message);
+    });
 }
 
 
