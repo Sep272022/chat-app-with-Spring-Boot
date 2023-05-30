@@ -30,10 +30,6 @@ public class AuthController {
   @GetMapping("/register")
   public String showForm(Model model) {
     model.addAttribute("user", new User());
-
-    List<String> listProfession = Arrays.asList("Developer", "Tester", "Architect");
-    model.addAttribute("listProfession", listProfession);
-
     return "register_form";
   }
 
