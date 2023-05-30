@@ -45,7 +45,7 @@ sendButton.addEventListener("click", (event) => {
     chatRoomId: currentChatRoom.id,
   };
   sendMessageToServer(msg);
-  addMessageToContainer(currentUser.name, msg);
+  addMessageToContainer(currentUser.email, msg);
   messageInput.value = "";
 });
 
@@ -56,7 +56,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 let currentUser = await getCurrentUser();
-userNameSpan.innerHTML = `${currentUser.name} (${currentUser.roles[0].name})`;
+userNameSpan.innerHTML = `${currentUser.email} (${currentUser.roles[0].name})`;
 populateChatRooms();
 
 let chatRooms = [];
@@ -97,7 +97,7 @@ async function fillUsersInModal() {
         userRow.classList.add("row");
         userRow.innerHTML = `
           <input type="radio" class="btn-check" name="user-radio-button" id="${user.id}" autocomplete="off">
-          <label class="btn btn-outline-primary w-100" for="${user.id}">${user.name}</label>
+          <label class="btn btn-outline-primary w-100" for="${user.id}">${user.email}</label>
         `;
         modalBodyAllUsers.appendChild(userRow);
       });
@@ -163,7 +163,7 @@ function addChatRoomButton(chatRoom) {
   } else {
     chatRoomName =
       chatRoomName === ""
-        ? chatRoom.members.find((member) => member.id !== currentUser.id).name
+        ? chatRoom.members.find((member) => member.id !== currentUser.id).email
         : "Failed to load name";
   }
   let chatRoomRow = document.createElement("div");
@@ -184,7 +184,7 @@ function addChatRoomButton(chatRoom) {
       let sender = chatRoom.members.find(
         (user) => user.id === message.fromUserId
       );
-      addMessageToContainer(sender === undefined ? "Unknown" : sender.name, message);
+      addMessageToContainer(sender === undefined ? "Unknown" : sender.email, message);
     });
     currentChatRoom = chatRoom;
   });
@@ -226,7 +226,7 @@ leaveButton.addEventListener("click", async (event) => {
       let msg = {
         fromUserId: currentUser.id,
         toUserId: selectedUser.id,
-        text: `${currentUser.name} has left the chat`,
+        text: `${currentUser.email} has left the chat`,
         date: new Date(),
         chatRoomId: currentChatRoom.id,
       };
