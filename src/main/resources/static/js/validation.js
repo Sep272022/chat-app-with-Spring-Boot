@@ -39,3 +39,20 @@ function checkEmailAvailable(email) {
     alert(err.message);
   });
 }
+
+
+const passwordConfirm = document.querySelector('#confirm');
+const passwordMatched = document.querySelector('#passwords-matched');
+passwordConfirm.addEventListener('keyup', (e) => {
+  let password = document.forms["userForm"]["password"].value;
+  let confirmPassword = document.forms["userForm"]["confirm"].value;
+  if (password === confirmPassword) {
+    passwordMatched.innerHTML = 'Passwords matched';
+    passwordMatched.classList.add('text-success');
+    passwordMatched.classList.remove('text-danger');
+  } else {
+    passwordMatched.innerHTML = 'Passwords do not match';
+    passwordMatched.classList.remove('text-success');
+    passwordMatched.classList.add('text-danger');
+  }
+});
