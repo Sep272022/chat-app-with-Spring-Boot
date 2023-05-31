@@ -200,7 +200,7 @@ function addMessageToContainer(senderName, message) {
   messageTitle.innerHTML = `${senderName} (${getFormattedTime(message.date)}): `;
 
   let messageText = document.createElement("span");
-  messageText.innerHTML = `${message.text}`;
+  messageText.textContent = `${message.text}`;
 
   messageRow.appendChild(messageTitle);
   messageRow.appendChild(messageText);
