@@ -30,6 +30,8 @@ public class SecurityConfig {
       "/static/**",
       "/css/**",
       "/js/**",
+      "/js/utils/**",
+      "/js/class/**",
       "/*.js" };
 
   String[] permittededUrls = {
