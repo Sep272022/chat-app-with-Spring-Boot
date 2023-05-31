@@ -51,8 +51,8 @@ public class MessageController {
   }
 
   private void sendChatMessageToUser(UserDTO to, ChatMessage message) {
-    // ChatMessageDTO chatMessageDTO = chatMessageService.convertChatMessageToDTO(message);
-    simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", message);
+    ChatMessageDTO chatMessageDTO = chatMessageService.convertChatMessageToDTO(message);
+    simpMessagingTemplate.convertAndSendToUser(to.getEmail(), "/topic/messages", chatMessageDTO);
   }
 
 }
