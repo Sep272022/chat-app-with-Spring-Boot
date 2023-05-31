@@ -8,7 +8,7 @@ const socket = new SocketHandler(url, (message) => {
   if (message.chatRoomId === currentChatRoom.id) {
     let chatRoom = chatRooms.find((room) => room.id === message.chatRoomId);
     chatRoom.messages.push(message);
-    let senderName = chatRoom.members.find((member) => member.id === message.fromUserId).name;
+    let senderName = chatRoom.members.find((member) => member.id === message.fromUserId).email;
     addMessageToContainer(senderName, message);
   } else {
     let chatRoom = chatRooms.find((room) => room.id === message.chatRoomId);
