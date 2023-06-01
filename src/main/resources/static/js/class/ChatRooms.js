@@ -1,6 +1,4 @@
-
 export class ChatRooms {
-
   #currentChatRoom = null;
 
   constructor() {
@@ -16,8 +14,8 @@ export class ChatRooms {
   }
 
   removeChatRoomById(chatRoomId) {
-    this.chatRooms = this.chatRooms.filter(room => room.id !== chatRoomId);
-    return this.chatRooms;
+    this.chatRooms = this.chatRooms.filter((room) => room.id !== chatRoomId);
+    return Object.assign(new ChatRooms(), this.chatRooms);
   }
 
   getChatRooms() {
@@ -37,11 +35,27 @@ export class ChatRooms {
   }
 
   getChatRoomById(id) {
-    return this.chatRooms.find(chatRoom => chatRoom.id === id);
+    return this.chatRooms.find((chatRoom) => chatRoom.id === id);
   }
 
   getChatRoomWith(user) {
-    return this.chatRooms.find(chatRoom => chatRoom.members.find(member => member.id === user.id));
+    return this.chatRooms.find((chatRoom) =>
+      chatRoom.members.find((member) => member.id === user.id)
+    );
   }
 
+  addMessageToChatRoomById(chatRoomId, message) {
+    let chatRoom = this.getChatRoomById(chatRoomId);
+    if (chatRoom === undefined) {
+      chatRoom = {
+        id: message.chatRoomId,
+        name: "",
+        members: [message.fromUser, message.toUser],
+        messages: [message],
+      };
+      this.addChatRoom(chatRoom);
+    } else {
+      chatRoom.addMessage(message);
+    }
+  }
 }

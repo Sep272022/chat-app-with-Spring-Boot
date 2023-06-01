@@ -1,6 +1,4 @@
-
 export class ChatRoom {
-
   buttonDomElement = null;
 
   constructor(chatRoom) {
@@ -38,7 +36,7 @@ export class ChatRoom {
   }
 
   getMemberById(id) {
-    return this.members.find(member => member.id === id);
+    return this.members.find((member) => member.id === id);
   }
 
   getMessages() {
@@ -54,8 +52,8 @@ export class ChatRoom {
       id: this.id,
       name: this.name,
       members: this.members,
-      messages: this.messages
-    }
+      messages: this.messages,
+    };
   }
 
   setButtonDomElement(buttonDomElement) {
