@@ -1,74 +1,68 @@
-
 import { ChatRooms } from "./class/ChatRooms.js";
 import { ChatRoom } from "./class/ChatRoom.js";
 import { getCurrentUser } from "./currentUser.js";
 import { SocketHandler } from "./utils/socket.js";
-import { getFormattedTime } from "./utils/time.js";
+import {
+  addMessageToMessageContainer,
+  disableSendButton,
+  emptyMessageContainer,
+  getTextFromMessageInput,
+  registerClickListenerOnSendButton,
+  setCurrentUserUI,
+  setTextInChatTitle,
+  setTextInMessageContainer,
+  clearMessageInput,
+  prependChatRoomToChatRoomContainer,
+  clearChatRoomContainer,
+} from "./ui.js";
 
 let chatRooms = new ChatRooms();
 
 let url = location.protocol + "//" + location.host + "/websocket-endpoint";
 const socket = new SocketHandler(url, (message) => {
-  let chatRoom = chatRooms.getChatRoomById(message.chatRoomId);
-  if (message.chatRoomId === currentChatRoom.id) {
-    chatRoom.addMessage(message);
-    let senderName = chatRoom.getMemberById(message.fromUser.id).email;
-    addMessageToContainer(senderName, message);
+  chatRooms.addMessageToChatRoomById(message.chatRoomId, message);
+  let targetChatRoom = chatRooms.getChatRoomById(message.chatRoomId);
+  let isNewChatRoom = targetChatRoom === undefined;
+
+  if (isNewChatRoom) {
+    addChatRoomButton(targetChatRoom);
   } else {
-    if (chatRoom === undefined) { // new chat room created by other user
-      chatRoom = {
-        id: message.chatRoomId,
-        name: "",
-        members: [message.fromUser, message.toUser],
-        messages: [message],
-      };
-      chatRooms.addChatRoom(chatRoom);
-      addChatRoomButton(chatRoom);
-    } else {
-      chatRoom.addMessage(message);
+    let isCurrentChatRoom =
+      message.chatRoomId === chatRooms.getCurrentChatRoom().id;
+    if (isCurrentChatRoom) {
+      let senderName = targetChatRoom.getMemberById(message.fromUser.id).email;
+      addMessageToMessageContainer(senderName, message);
     }
   }
 });
 
-const messageContainer = document.querySelector("#message-container");
-const chatTitle = document.querySelector("#chat-title");
-const messageInput = document.querySelector("#message-input");
-const sendButton = document.querySelector("#send-button");
-const conversationContainer = document.querySelector("#conversation-container");
-const userNameSpan = document.querySelector("#user-name");
-
-sendButton.disabled = true;
-sendButton.addEventListener("click", (event) => {
-  if (messageInput.value === "") return;
+disableSendButton();
+registerClickListenerOnSendButton(() => {
+  let message = getTextFromMessageInput();
+  if (message === "") return;
   let msg = {
     fromUserId: currentUser.id,
     toUserId: selectedUser.id, // TODO: is this really needed?
-    text: messageInput.value,
+    text: message,
     date: new Date(),
     chatRoomId: chatRooms.getCurrentChatRoom().id,
   };
   sendMessageToServer(msg);
-  addMessageToContainer(currentUser.email, msg);
-  messageInput.value = "";
-});
-
-document.addEventListener("keydown", (event) => {
-  if (document.activeElement === messageInput && event.key === "Enter") {
-    sendButton.click();
-  }
+  addMessageToMessageContainer(currentUser.email, msg);
+  chatRooms.getCurrentChatRoom().addMessage(msg);
+  clearMessageInput();
 });
 
 let currentUser = await getCurrentUser();
-userNameSpan.innerHTML = `${currentUser.email} (${currentUser.roles[0].name})`;
+setCurrentUserUI(currentUser);
 populateChatRooms();
 
 async function populateChatRooms() {
-  conversationContainer.innerHTML = "";
+  clearChatRoomContainer();
   try {
     let res = await fetch("/chatrooms?userId=" + currentUser.id);
     if (res.ok) {
       let returnedChatRooms = await res.json();
-      console.log('chatRooms', returnedChatRooms);
       returnedChatRooms.forEach((chatRoom) => {
         if (chatRoom == null) return;
         let chatRoomObj = new ChatRoom(chatRoom);
@@ -153,8 +147,8 @@ async function addChatRoomWith(user) {
     });
     if (res.ok) {
       let returnedChatRoom = new ChatRoom(await res.json());
-      addChatRoomButton(returnedChatRoom);
       chatRooms.addChatRoom(returnedChatRoom);
+      addChatRoomButton(returnedChatRoom);
     }
   } catch (error) {
     console.error(error);
@@ -177,50 +171,40 @@ function addChatRoomButton(chatRoom) {
     selectedUser = chatRoom.members.find(
       (member) => member.id !== currentUser.id
     );
-    chatTitle.innerHTML = chatRoomName;
-    messageContainer.innerHTML = "";
+    // chatTitle.innerHTML = chatRoomName;
+    setTextInChatTitle(chatRoomName);
+    emptyMessageContainer();
     chatRoom.messages.forEach((message) => {
       let sender = chatRoom.members.find(
         (user) => user.id === message.fromUserId
       );
-      addMessageToContainer(sender === undefined ? "Unknown" : sender.email, message);
+      addMessageToMessageContainer(
+        sender === undefined ? "Unknown" : sender.email, // TODO: sender is undefined when current chat room is not the one with the message
+        message
+      );
     });
-    currentChatRoom = chatRoom;
+    chatRooms.setCurrentChatRoom(new ChatRoom(chatRoom));
   });
-  conversationContainer.prepend(chatRoomRow);
+  prependChatRoomToChatRoomContainer(chatRoomRow);
   return chatRoomRow;
 }
 
 function getChatRoomName(chatRoom) {
   let chatRoomName = chatRoom.getName();
-  if (chatRoom.members.length === 1 && chatRoom.members[0].id === currentUser.id) {
+  if (
+    chatRoom.members.length === 1 &&
+    chatRoom.members[0].id === currentUser.id
+  ) {
     chatRoomName = "(Empty)";
   }
   return chatRoomName;
-}
-
-function addMessageToContainer(senderName, message) {
-  let messageRow = document.createElement("div");
-  messageRow.classList.add("p-2");
-
-  let messageTitle = document.createElement("div");
-  messageTitle.classList.add("fw-bold");
-  messageTitle.innerHTML = `${senderName} (${getFormattedTime(message.date)}): `;
-
-  let messageText = document.createElement("span");
-  messageText.textContent = `${message.text}`;
-
-  messageRow.appendChild(messageTitle);
-  messageRow.appendChild(messageText);
-  messageContainer.appendChild(messageRow);
-  messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
 
 function sendMessageToServer(message) {
   socket.sendMessage(message);
 }
 
-
+// TODO: move it to ui.js
 const leaveButton = document.querySelector("#leave-button");
 leaveButton.addEventListener("click", async (event) => {
   let currentChatRoomId = chatRooms.getCurrentChatRoom().id;
@@ -234,17 +218,18 @@ leaveButton.addEventListener("click", async (event) => {
     if (res.ok) {
       let msg = {
         fromUserId: currentUser.id,
-        toUserId: selectedUser.id,
+        toUserId: selectedUser.id, // TODO: this will be null if this chat room has only one user
         text: `${currentUser.email} has left the chat`,
         date: new Date(),
         chatRoomId: currentChatRoomId,
       };
       sendMessageToServer(msg);
-      chatRooms = chatRooms.removeChatRoom(currentChatRoomId);
+      chatRooms = chatRooms.removeChatRoomById(currentChatRoomId);
+      console.log("chatRooms", chatRooms);
       chatRooms.setCurrentChatRoom(null);
-      messageContainer.innerHTML = "";
-      chatTitle.innerHTML = "";
-      conversationContainer.innerHTML = "";
+      emptyMessageContainer();
+      setTextInChatTitle("");
+      clearChatRoomContainer();
       populateChatRooms();
     }
   } catch (error) {
