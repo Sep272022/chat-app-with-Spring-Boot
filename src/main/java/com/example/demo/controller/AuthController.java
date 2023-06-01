@@ -1,8 +1,5 @@
 package com.example.demo.controller;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.model.User;
-import com.example.demo.model.UserDTO;
 import com.example.demo.service.UserService;
 import com.example.demo.validator.UserValidator;
 
@@ -30,11 +26,7 @@ public class AuthController {
 
   @GetMapping("/register")
   public String showForm(Model model) {
-    model.addAttribute("user", new UserDTO());
-
-    List<String> listProfession = Arrays.asList("Developer", "Tester", "Architect");
-    model.addAttribute("listProfession", listProfession);
-
+    model.addAttribute("user", new User());
     return "register_form";
   }
 
@@ -46,7 +38,7 @@ public class AuthController {
       System.out.println(bindingResult.getAllErrors());
       return "register_form";
     }
-    user = userService.createUser(user);
+    userService.createUser(user);
 
     return "redirect:/login?register-success";
   }
@@ -77,13 +69,7 @@ public class AuthController {
 
   @PostMapping("/login")
   String authorizeUser(@ModelAttribute("user") User user, Model model) {
-    boolean verified = userService.verifyUser(user);
-    if (verified) {
-      return "redirect:/index";
-    } else {
-      model.addAttribute("error", true);
-      return "login";
-    }
+    return "index";
   }
 
   @PostMapping("/logout")
