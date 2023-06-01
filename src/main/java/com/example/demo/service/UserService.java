@@ -76,7 +76,7 @@ public class UserService {
   }
 
   public boolean isEmailAvailable(String email) {
-    return findUserByEmail(email) == null;
+    return !mongoTemplate.exists(new Query(Criteria.where("email").is(email)), User.class);
   }
 
   public List<UserDTO> findAll() {

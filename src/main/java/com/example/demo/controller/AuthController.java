@@ -1,8 +1,5 @@
 package com.example.demo.controller;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,10 +27,6 @@ public class AuthController {
   @GetMapping("/register")
   public String showForm(Model model) {
     model.addAttribute("user", new User());
-
-    List<String> listProfession = Arrays.asList("Developer", "Tester", "Architect");
-    model.addAttribute("listProfession", listProfession);
-
     return "register_form";
   }
 
