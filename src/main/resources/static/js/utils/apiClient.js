@@ -3,7 +3,7 @@ export const APIClient = {
     return HTTPClient.post("/chatrooms", chatRoom);
   },
 
-  deleteChatRoomByUesrIdAndRoomId: (userId, chatRoomId) => {
+  leaveChatRoomByUesrIdAndRoomId: (userId, chatRoomId) => {
     return HTTPClient.delete(`/chatrooms/${userId}/leave/${chatRoomId}`);
   },
 

@@ -178,27 +178,35 @@ function sendMessageToServer(message) {
 registerClickListenerOnLeaveButton(async () => {
   let currentChatRoomId = chatRooms.getCurrentChatRoom().id;
   try {
-    await APIClient.deleteChatRoomByUesrIdAndRoomId(
-      currentUser.id,
-      currentChatRoomId
-    );
-    let msg = {
-      fromUserId: currentUser.id,
-      toUserId: selectedUser.id, // TODO: this will be null if this chat room has only one user
-      text: `${currentUser.email} has left the chat`,
-      date: new Date(),
-      chatRoomId: currentChatRoomId,
-    };
-    sendMessageToServer(msg);
-    chatRooms = chatRooms.removeChatRoomById(currentChatRoomId);
-    console.log("chatRooms", chatRooms);
-    chatRooms.setCurrentChatRoom(null);
-    emptyMessageContainer();
-    setTextInChatTitle("");
-    clearChatRoomContainer();
-    populateChatRooms();
+    leaveChatRoom(currentChatRoomId);
+    updateUIAfterLeaving();
   } catch (error) {
     console.error(error);
     alert("Could not leave chat room");
   }
 });
+
+async function leaveChatRoom(chatRoomId) {
+  await APIClient.leaveChatRoomByUesrIdAndRoomId(currentUser.id, chatRoomId);
+  let msg = createLeavingMessage(chatRoomId);
+  sendMessageToServer(msg);
+  chatRooms.removeChatRoomById(chatRoomId);
+}
+
+function createLeavingMessage(chatRoomId) {
+  return {
+    fromUserId: currentUser.id,
+    toUserId: selectedUser.id, // TODO: this will be null if this chat room has only one user
+    text: `${currentUser.email} has left the chat`,
+    date: new Date(),
+    chatRoomId: chatRoomId,
+  };
+}
+
+function updateUIAfterLeaving() {
+  chatRooms.setCurrentChatRoom(null);
+  emptyMessageContainer();
+  setTextInChatTitle("");
+  clearChatRoomContainer();
+  populateChatRooms();
+}

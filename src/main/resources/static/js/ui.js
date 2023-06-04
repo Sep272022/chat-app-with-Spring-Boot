@@ -6,6 +6,7 @@ const messageInput = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
 const chatRoomContainer = document.querySelector("#conversation-container");
 const userNameSpan = document.querySelector("#user-name");
+const leaveButton = document.querySelector("#leave-button");
 
 export function setTextInMessageContainer(text) {
   messageContainer.textContent = text;
@@ -68,6 +69,10 @@ export function clearChatRoomContainer() {
 
 export function prependChatRoomToChatRoomContainer(chatRoomRow) {
   chatRoomContainer.prepend(chatRoomRow);
+}
+
+export function registerClickListenerOnLeaveButton(callback) {
+  leaveButton.addEventListener("click", callback);
 }
 
 document.addEventListener("keydown", (event) => {
