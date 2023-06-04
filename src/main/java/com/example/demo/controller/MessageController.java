@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.kafka.KafkaSenderService;
 import com.example.demo.model.ChatMessage;
 import com.example.demo.model.ChatMessageDTO;
 import com.example.demo.model.UserDTO;
@@ -27,14 +26,11 @@ public class MessageController {
   @Autowired
   private SimpMessagingTemplate simpMessagingTemplate;
 
-  @Autowired
-  private KafkaSenderService kafkaSenderService;
-
   @MessageMapping("/chat")
   // @SendTo("/topic/messages")
   public ChatMessage getMessage(ChatMessage message) {
-    // handleChatMessage(message);
-    kafkaSenderService.sendMessage(message, "chat-message");
+    handleChatMessage(message);
+    // kafkaSenderService.sendMessage(message, "chat-message");
     return message; // this value is broadcast to all subscribers to the endpoint specified in
     // @SendTo annotation above
   }
