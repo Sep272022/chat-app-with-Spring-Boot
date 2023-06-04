@@ -58,6 +58,7 @@
           <div class="mb-3 d-flex gap-4">
             <input
               class="btn btn-primary"
+              id="login-button"
               name="submit"
               type="submit"
               value="Submit"
@@ -72,7 +73,7 @@
           </div>
 
           <div th:switch="${status}">
-            <p th:case="error">Invalid username and password</p>
+            <p th:case="error">Invalid email or password</p>
             <p th:case="logout">You have been logged out.</p>
             <p th:case="register-success">User created successfully!</p>
           </div>
