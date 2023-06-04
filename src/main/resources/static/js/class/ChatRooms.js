@@ -55,7 +55,7 @@ export class ChatRooms {
       };
       this.addChatRoom(chatRoom);
     } else {
-      chatRoom.addMessage(message);
+      chatRoom.messages.push(message);
     }
   }
 }
