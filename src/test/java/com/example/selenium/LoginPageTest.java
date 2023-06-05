@@ -1,10 +1,10 @@
 package com.example.selenium;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -14,6 +14,14 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 public class LoginPageTest {
 
+  private static final String LOGOUT_BUTTON_ID = "logout-button";
+
+  private static final String LOGIN_BUTTON_ID = "login-button";
+
+  private static final String PASSWORD_INPUT_ID = "password";
+
+  private static final String EMAIL_INPUT_ID = "email";
+
   private static final String VALID_USER_EMAIL = "test@test.com";
 
   private static final String INVALID_USER_EMAIL = "test10@test.com";
@@ -22,8 +30,11 @@ public class LoginPageTest {
 
   private static final String INVALID_USER_PASSWORD = "!@#";
 
-  // TODO: link port number in application.properties
+  // TODO: link port number in application.properties if possible
   private static final int PORT = 8080;
+
+  private static final String LOGIN_PAGE_URL =
+    "http://localhost:" + PORT + "/login";
 
   private static WebDriver driver;
 
@@ -47,12 +58,14 @@ public class LoginPageTest {
   @Test
   void testLoginWithValidCredentials() {
     try {
-      driver.get("http://localhost:" + PORT + "/login");
+      driver.get(LOGIN_PAGE_URL);
 
-      driver.findElement(By.id("email")).sendKeys(VALID_USER_EMAIL);
-      driver.findElement(By.id("password")).sendKeys(VALID_USER_PASSWORD);
+      driver.findElement(By.id(EMAIL_INPUT_ID)).sendKeys(VALID_USER_EMAIL);
+      driver
+        .findElement(By.id(PASSWORD_INPUT_ID))
+        .sendKeys(VALID_USER_PASSWORD);
 
-      driver.findElement(By.id("login-button")).click();
+      driver.findElement(By.id(LOGIN_BUTTON_ID)).click();
 
       Thread.sleep(2000);
 
@@ -73,12 +86,14 @@ public class LoginPageTest {
   @Test
   void testLoginWithInvalidCredentials() {
     try {
-      driver.get("http://localhost:" + PORT + "/login");
+      driver.get(LOGIN_PAGE_URL);
 
-      driver.findElement(By.id("email")).sendKeys(INVALID_USER_EMAIL);
-      driver.findElement(By.id("password")).sendKeys(INVALID_USER_PASSWORD);
+      driver.findElement(By.id(EMAIL_INPUT_ID)).sendKeys(INVALID_USER_EMAIL);
+      driver
+        .findElement(By.id(PASSWORD_INPUT_ID))
+        .sendKeys(INVALID_USER_PASSWORD);
 
-      driver.findElement(By.id("login-button")).click();
+      driver.findElement(By.id(LOGIN_BUTTON_ID)).click();
 
       String expectedUrl = "http://localhost:" + PORT + "/login?error";
       String actualUrl = driver.getCurrentUrl();
@@ -92,9 +107,45 @@ public class LoginPageTest {
       String expectedErrorMessage = "Invalid email or password";
       String bodyText = driver.findElement(By.tagName("body")).getText();
 
-      Assertions.assertTrue(
+      assertTrue(
         bodyText.contains(expectedErrorMessage),
         "Failed login should display error message"
+      );
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail();
+    }
+  }
+
+  @Test
+  void testLoginPageAfterLogout() {
+    try {
+      driver.get(LOGIN_PAGE_URL);
+
+      driver.findElement(By.id(EMAIL_INPUT_ID)).sendKeys(VALID_USER_EMAIL);
+      driver
+        .findElement(By.id(PASSWORD_INPUT_ID))
+        .sendKeys(VALID_USER_PASSWORD);
+
+      driver.findElement(By.id(LOGIN_BUTTON_ID)).click();
+
+      driver.findElement(By.id(LOGOUT_BUTTON_ID)).click();
+
+      String expectedUrl = "http://localhost:" + PORT + "/login?logout";
+      String actualUrl = driver.getCurrentUrl();
+
+      assertEquals(
+        expectedUrl,
+        actualUrl,
+        "Successful logout should redirect to login page"
+      );
+
+      String expectedErrorMessage = "You have been logged out";
+      String bodyText = driver.findElement(By.tagName("body")).getText();
+
+      assertTrue(
+        bodyText.contains(expectedErrorMessage),
+        "Successful logout should display success message"
       );
     } catch (Exception e) {
       e.printStackTrace();
