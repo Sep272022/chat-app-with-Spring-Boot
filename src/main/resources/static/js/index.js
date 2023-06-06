@@ -15,6 +15,8 @@ import {
   prependChatRoomToChatRoomContainer,
   clearChatRoomContainer,
   registerClickListenerOnLeaveButton,
+  enableLeaveButton,
+  disableLeaveButton,
 } from "./ui.js";
 import { APIClient } from "./utils/apiClient.js";
 
@@ -71,6 +73,7 @@ async function populateChatRooms() {
       chatRooms.addChatRoom(chatRoomObj);
       chatRoomObj.setButtonDomElement(addChatRoomButton(chatRoom));
       chatRooms.setCurrentChatRoom(chatRoomObj);
+      enableLeaveButton();
     });
   } catch (error) {
     console.error(error);
@@ -166,6 +169,7 @@ function addChatRoomButton(chatRoom) {
       addMessageToMessageContainer(message.fromUser?.email, message);
     });
     chatRooms.setCurrentChatRoom(new ChatRoom(chatRoom));
+    enableLeaveButton();
   });
   prependChatRoomToChatRoomContainer(chatRoomRow);
   return chatRoomRow;
@@ -205,6 +209,7 @@ function createLeavingMessage(chatRoomId) {
 
 function updateUIAfterLeaving() {
   chatRooms.setCurrentChatRoom(null);
+  disableLeaveButton();
   emptyMessageContainer();
   setTextInChatTitle("");
   clearChatRoomContainer();
