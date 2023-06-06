@@ -92,21 +92,30 @@ async function fillUsersInModal() {
   modalBodyAllUsers.innerHTML = "";
   try {
     allUsers = await APIClient.getAllUsers();
-    console.log("allUsers", allUsers);
-    allUsers.forEach((user) => {
-      if (user.email === currentUser.email) return;
-      let userRow = document.createElement("div");
-      userRow.classList.add("row");
-      userRow.innerHTML = `
-          <input type="radio" class="btn-check" name="user-radio-button" id="${user.id}" autocomplete="off">
-          <label class="btn btn-outline-primary w-100" for="${user.id}">${user.email}</label>
-        `;
-      modalBodyAllUsers.appendChild(userRow);
-    });
+    console.table("allUsers", allUsers);
+    fillUserRows(allUsers);
   } catch (error) {
     console.error(error);
     alert("Could not get users");
   }
+}
+
+function fillUserRows(users) {
+  users.forEach((user) => {
+    if (user.email === currentUser.email) return;
+    let userRow = createUserRow(user);
+    modalBodyAllUsers.appendChild(userRow);
+  });
+}
+
+function createUserRow(user) {
+  let userRow = document.createElement("div");
+  userRow.classList.add("row");
+  userRow.innerHTML = `
+          <input type="radio" class="btn-check" name="user-radio-button" id="${user.id}" autocomplete="off">
+          <label class="btn btn-outline-primary w-100" for="${user.id}">${user.email}</label>
+        `;
+  return userRow;
 }
 
 let selectedUser = null;
@@ -150,29 +159,47 @@ async function addChatRoomWith(user) {
 }
 
 function addChatRoomButton(chatRoom) {
-  // let chatRoomName = getChatRoomName(chatRoom)
   let chatRoomName = chatRooms.getChatRoomById(chatRoom.id).getName();
+  let chatRoomRow = createChatRoomRow(chatRoom.id, chatRoomName);
+
+  chatRoomRow.addEventListener("click", () => {
+    handleChatRoomRowClick(chatRoom, chatRoomName);
+  });
+  prependChatRoomToChatRoomContainer(chatRoomRow);
+  chatRoomRow.click();
+  return chatRoomRow;
+}
+
+function createChatRoomRow(chatRoomId, chatRoomName) {
   let chatRoomRow = document.createElement("div");
   chatRoomRow.classList.add("d-flex", "justify-content-between");
   chatRoomRow.innerHTML = `
-        <input type="radio" class="btn-check" name="talk-partners" id="${chatRoom.id}" autocomplete="off" checked>
-        <label class="btn btn-outline-primary w-100" for="${chatRoom.id}">${chatRoomName}</label>
-      `;
-
-  chatRoomRow.addEventListener("click", () => {
-    selectedUser = chatRoom.members.find(
-      (member) => member.id !== currentUser.id
-    );
-    setTextInChatTitle(chatRoomName);
-    emptyMessageContainer();
-    chatRoom.messages.forEach((message) => {
-      addMessageToMessageContainer(message.fromUser?.email, message);
-    });
-    chatRooms.setCurrentChatRoom(new ChatRoom(chatRoom));
-    enableLeaveButton();
-  });
-  prependChatRoomToChatRoomContainer(chatRoomRow);
+    <input type="radio" class="btn-check" name="talk-partners" id="${chatRoomId}" autocomplete="off" checked>
+    <label class="btn btn-outline-primary w-100" for="${chatRoomId}">${chatRoomName}</label>
+  `;
   return chatRoomRow;
+}
+
+function handleChatRoomRowClick(chatRoom, chatRoomName) {
+  selectedUser = chatRoom.members.find(
+    (member) => member.id !== currentUser.id
+  );
+  setTextInChatTitle(chatRoomName);
+  emptyMessageContainer();
+  addMessagesToMessageContainer(chatRoom.members, chatRoom.messages);
+  chatRooms.setCurrentChatRoom(new ChatRoom(chatRoom));
+  enableLeaveButton();
+  console.log("currentChatRoom changed: ", chatRooms.getCurrentChatRoom().id);
+}
+
+function addMessagesToMessageContainer(chatRoomMembers, chatRoomMessages) {
+  chatRoomMessages.forEach((message) => {
+    let fromUser = chatRoomMembers.find(
+      (member) =>
+        member.id === message.fromUserId || member.id === message.fromUser?.id
+    );
+    addMessageToMessageContainer(fromUser?.email, message);
+  });
 }
 
 function sendMessageToServer(message) {
@@ -180,9 +207,10 @@ function sendMessageToServer(message) {
 }
 
 registerClickListenerOnLeaveButton(async () => {
-  let currentChatRoomId = chatRooms.getCurrentChatRoom().id;
+  let currentChatRoomId = chatRooms.getCurrentChatRoom()?.id;
+  if (currentChatRoomId === undefined) return;
   try {
-    leaveChatRoom(currentChatRoomId);
+    await leaveChatRoom(currentChatRoomId);
     updateUIAfterLeaving();
   } catch (error) {
     console.error(error);

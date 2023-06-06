@@ -18,22 +18,35 @@ export function emptyMessageContainer() {
 }
 
 export function addMessageToMessageContainer(senderName, message) {
+  let messageRow = createMessageRow(senderName, message);
+  messageContainer.appendChild(messageRow);
+  // Scroll to bottom
+  messageContainer.scrollTo(0, messageContainer.scrollHeight);
+}
+
+function createMessageRow(senderName, message) {
   let messageRow = document.createElement("div");
   messageRow.classList.add("p-2");
-
-  let messageTitle = document.createElement("div");
-  messageTitle.classList.add("fw-bold");
-  messageTitle.innerHTML = `${senderName} (${getFormattedTime(
-    message.date
-  )}): `;
-
-  let messageText = document.createElement("span");
-  messageText.textContent = `${message.text}`;
+  let messageTitle = createMessageTitle(senderName, message);
+  let messageText = createMessageText(message);
 
   messageRow.appendChild(messageTitle);
   messageRow.appendChild(messageText);
-  messageContainer.appendChild(messageRow);
-  messageContainer.scrollTo(0, messageContainer.scrollHeight);
+  return messageRow;
+}
+
+function createMessageTitle(senderName, message) {
+  let messageTitle = document.createElement("div");
+  messageTitle.classList.add("fw-bold");
+  messageTitle.innerHTML = `
+  ${senderName} (${getFormattedTime(message.date)}): `;
+  return messageTitle;
+}
+
+function createMessageText(message) {
+  let messageText = document.createElement("span");
+  messageText.textContent = `${message.text}`;
+  return messageText;
 }
 
 export function setTextInChatTitle(text) {
