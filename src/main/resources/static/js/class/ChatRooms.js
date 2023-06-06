@@ -1,5 +1,5 @@
 export class ChatRooms {
-  #currentChatRoom = null;
+  currentChatRoom = null;
 
   constructor() {
     this.chatRooms = [];
@@ -27,11 +27,11 @@ export class ChatRooms {
   }
 
   getCurrentChatRoom() {
-    return this.#currentChatRoom;
+    return this.currentChatRoom;
   }
 
   setCurrentChatRoom(chatRoom) {
-    this.#currentChatRoom = chatRoom;
+    this.currentChatRoom = chatRoom;
   }
 
   getChatRoomById(id) {
