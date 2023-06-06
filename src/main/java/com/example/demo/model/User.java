@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 import org.springframework.data.annotation.Id;
@@ -12,6 +13,7 @@ public class User {
   private String id;
 
   @NotBlank
+  @Email
   private String email;
 
   @NotBlank
