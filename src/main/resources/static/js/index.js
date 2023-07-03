@@ -10,13 +10,11 @@ import {
   registerClickListenerOnSendButton,
   setCurrentUserUI,
   setTextInChatTitle,
-  setTextInMessageContainer,
   clearMessageInput,
   prependChatRoomToChatRoomContainer,
   clearChatRoomContainer,
   registerClickListenerOnLeaveButton,
   enableLeaveButton,
-  disableLeaveButton,
 } from "./ui.js";
 import { APIClient } from "./utils/apiClient.js";
 
@@ -237,9 +235,5 @@ function createLeavingMessage(chatRoomId) {
 
 function updateUIAfterLeaving() {
   chatRooms.setCurrentChatRoom(null);
-  disableLeaveButton();
-  emptyMessageContainer();
-  setTextInChatTitle("");
-  clearChatRoomContainer();
-  populateChatRooms();
+  updateUIAfterLeaving();
 }

@@ -105,6 +105,14 @@ export function disableTalkToButton() {
   talkToButton.disabled = true;
 }
 
+export function updateUIAfterLeaving() {
+  disableLeaveButton();
+  emptyMessageContainer();
+  setTextInChatTitle("");
+  clearChatRoomContainer();
+  populateChatRooms();
+}
+
 document.addEventListener("keydown", (event) => {
   if (document.activeElement === messageInput && event.key === "Enter") {
     sendButton.click();
