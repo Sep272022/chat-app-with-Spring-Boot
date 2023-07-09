@@ -1,5 +1,9 @@
 package com.example.demo.config;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,31 +18,27 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-
 @Configuration
 @EnableWebSecurity
 @EnableWebMvc
 public class SecurityConfig {
 
   String[] staticResources = {
-      "/resources/**",
-      "/static/**",
-      "/css/**",
-      "/js/**",
-      "/js/utils/**",
-      "/js/class/**",
-      "/*.js" };
+    "/resources/**",
+    "/static/**",
+    "/css/**",
+    "/js/**",
+    "/js/utils/**",
+    "/js/class/**",
+    "/*.js",
+  };
 
   String[] permittededUrls = {
-      "/login",
-      "/logout",
-      "/register",
-      "/check_email**" };
+    "/login",
+    "/logout",
+    "/register",
+    "/check_email**",
+  };
 
   @Autowired
   private UserDetailsService userDetailsService;
@@ -50,24 +50,37 @@ public class SecurityConfig {
   // https://docs.spring.io/spring-security/reference/5.8/migration/servlet/config.html
   @Bean
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests((authz) -> authz
-        .requestMatchers(staticResources).permitAll()
-        .requestMatchers(permittededUrls).permitAll()
-        .requestMatchers("/admins/**").hasRole("ADMIN")
-        // .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
-        .anyRequest().authenticated())
-        .formLogin(login -> login.loginPage("/login")
-            .usernameParameter("email")
-            .defaultSuccessUrl("/")
-            .successHandler(authenticationSuccessHandler())
-            .failureUrl("/login?error")
-            .permitAll())
-        .logout(logout -> logout.logoutUrl("/logout")
-            .logoutSuccessUrl("/login?logout")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID")
-            .permitAll())
-        .csrf((csrf) -> csrf.disable()); // https://stackoverflow.com/questions/35767806/error-405-request-method-post-not-supported-spring-security
+    http
+      .authorizeHttpRequests(authz ->
+        authz
+          .requestMatchers(staticResources)
+          .permitAll()
+          .requestMatchers(permittededUrls)
+          .permitAll()
+          .requestMatchers("/admins/**")
+          .hasRole("ADMIN")
+          // .requestMatchers("/users/**").hasAnyRole("USER", "ADMIN")
+          .anyRequest()
+          .authenticated()
+      )
+      .formLogin(login ->
+        login
+          .loginPage("/login")
+          .usernameParameter("email")
+          .defaultSuccessUrl("/")
+          .successHandler(authenticationSuccessHandler())
+          .failureUrl("/login?error")
+          .permitAll()
+      )
+      .logout(logout ->
+        logout
+          .logoutUrl("/logout")
+          .logoutSuccessUrl("/login?logout")
+          .invalidateHttpSession(true)
+          .deleteCookies("JSESSIONID")
+          .permitAll()
+      )
+      .csrf(csrf -> csrf.disable()); // https://stackoverflow.com/questions/35767806/error-405-request-method-post-not-supported-spring-security
     // .cors((cors) -> cors.disable())
     // .httpBasic(withDefaults());
     return http.build();
@@ -78,8 +91,11 @@ public class SecurityConfig {
   AuthenticationSuccessHandler authenticationSuccessHandler() {
     return new AuthenticationSuccessHandler() {
       @Override
-      public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-          Authentication authentication) throws IOException, ServletException {
+      public void onAuthenticationSuccess(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Authentication authentication
+      ) throws IOException, ServletException {
         response.sendRedirect("/index");
       }
     };
@@ -99,5 +115,4 @@ public class SecurityConfig {
     provider.setPasswordEncoder(passwordEncoder);
     return provider;
   }
-
 }
