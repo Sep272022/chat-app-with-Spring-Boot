@@ -15,6 +15,7 @@ import {
   clearChatRoomContainer,
   registerClickListenerOnLeaveButton,
   enableLeaveButton,
+  updateUIAfterLeaving,
 } from "./ui.js";
 import { APIClient } from "./utils/apiClient.js";
 
@@ -209,6 +210,7 @@ registerClickListenerOnLeaveButton(async () => {
   if (currentChatRoomId === undefined) return;
   try {
     await leaveChatRoom(currentChatRoomId);
+    chatRooms.setCurrentChatRoom(null);
     updateUIAfterLeaving();
   } catch (error) {
     console.error(error);
@@ -231,9 +233,4 @@ function createLeavingMessage(chatRoomId) {
     date: new Date(),
     chatRoomId: chatRoomId,
   };
-}
-
-function updateUIAfterLeaving() {
-  chatRooms.setCurrentChatRoom(null);
-  updateUIAfterLeaving();
 }
