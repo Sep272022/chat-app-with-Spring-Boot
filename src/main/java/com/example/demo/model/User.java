@@ -16,6 +16,8 @@ public class User {
   @Email
   private String email;
 
+  private String username;
+
   @NotBlank
   private String password;
 
@@ -56,5 +58,13 @@ public class User {
 
   public String getId() {
     return id;
+  }
+
+  public String getUsername() {
+    return this.username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 }
