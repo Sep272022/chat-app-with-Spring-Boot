@@ -4,10 +4,11 @@ WORKDIR /build
 COPY ./pom.xml ./pom.xml
 RUN mvn dependency:go-offline -B
 COPY ./src ./src
+# Skip tests
 RUN mvn clean package -DskipTests
 
 # Package
-FROM openjdk:22 as package
+FROM openjdk:22 AS package
 WORKDIR /app
 COPY --from=build /build/target/*.jar /app/chat-app.jar
 EXPOSE 8080
