@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;
+import com.example.demo.repository.RoleRepository;
+import com.example.demo.repository.UserRepository;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -22,20 +24,47 @@ public class UserService {
   private MongoTemplate mongoTemplate;
 
   @Autowired
+  private RoleRepository roleRepository;
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
   private PasswordEncoder passwordEncoder;
 
   @Autowired
   private ModelMapper modelMapper;
 
   public UserDTO createUser(User user) {
+    if (userRepository.existsByEmail(user.getEmail())) {
+      throw new RuntimeException("Email already exists");
+    }
+
     user.setPassword(passwordEncoder.encode(user.getPassword()));
-    Role role = new Role();
-    role.setName("ROLE_USER");
+    Role role = roleRepository
+      .findRoleByName("ROLE_USER")
+      .orElseThrow(() -> new RuntimeException("Role not found"));
     user.setRoles(Set.of(role));
     if (user.getChatRoomIds() == null) {
       user.setChatRoomIds(new HashSet<String>());
     }
-    return modelMapper.map(mongoTemplate.save(user), UserDTO.class);
+    return modelMapper.map(mongoTemplate.insert(user), UserDTO.class);
+  }
+
+  public UserDTO createAdmin(User admin) {
+    if (userRepository.existsByEmail(admin.getEmail())) {
+      throw new RuntimeException("Email already exists");
+    }
+
+    admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+    Role role = roleRepository
+      .findRoleByName("ROLE_ADMIN")
+      .orElseThrow(() -> new RuntimeException("Role not found"));
+    admin.setRoles(Set.of(role));
+    if (admin.getChatRoomIds() == null) {
+      admin.setChatRoomIds(new HashSet<String>());
+    }
+    return modelMapper.map(mongoTemplate.insert(admin), UserDTO.class);
   }
 
   public UserDTO updateChatRoomToUser(UserDTO user) {
@@ -65,6 +94,14 @@ public class UserService {
     );
   }
 
+  public List<UserDTO> findAllByRole(String role) {
+    Query query = new Query();
+    query.addCriteria(Criteria.where("roles").is(role));
+    return Arrays.asList(
+      modelMapper.map(mongoTemplate.find(query, User.class), UserDTO[].class)
+    );
+  }
+
   public boolean verifyUser(User user) {
     Query query = new Query();
     query.addCriteria(Criteria.where("email").is(user.getEmail()));
@@ -76,7 +113,7 @@ public class UserService {
   }
 
   public boolean isEmailAvailable(String email) {
-    return !mongoTemplate.exists(new Query(Criteria.where("email").is(email)), User.class);
+    return !userRepository.existsByEmail(email);
   }
 
   public List<UserDTO> findAll() {
@@ -95,5 +132,4 @@ public class UserService {
       .toList();
     return Arrays.asList(modelMapper.map(users, UserDTO[].class));
   }
-
 }

@@ -32,7 +32,7 @@ public class ChatApplication {
     UserService userService
   ) {
     return args -> {
-      if (userService.findByRole("ROLE_ADMIN").isEmpty()) {
+      if (userService.findAllByRole("ROLE_ADMIN").isEmpty()) {
         User admin = new User();
         admin.setUsername("admin");
         admin.setEmail("admin@localhost");
