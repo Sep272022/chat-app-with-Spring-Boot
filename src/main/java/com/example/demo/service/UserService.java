@@ -96,7 +96,7 @@ public class UserService {
 
   public List<UserDTO> findAllByRole(String role) {
     Query query = new Query();
-    query.addCriteria(Criteria.where("roles").is(role));
+    query.addCriteria(Criteria.where("roles.name").is(role));
     return Arrays.asList(
       modelMapper.map(mongoTemplate.find(query, User.class), UserDTO[].class)
     );
