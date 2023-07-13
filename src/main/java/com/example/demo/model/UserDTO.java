@@ -5,7 +5,7 @@ import java.util.Set;
 public class UserDTO {
 
   private String id;
-  private String name;
+  private String username;
   private String email;
   private Set<Role> roles;
   private Set<String> chatRoomIds;
@@ -18,12 +18,12 @@ public class UserDTO {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getUsername() {
+    return username;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public String getEmail() {
