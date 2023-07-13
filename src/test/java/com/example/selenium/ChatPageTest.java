@@ -72,56 +72,47 @@ public class ChatPageTest {
   }
 
   @Test
-  void testCreateAndLeaveChatRoom() {
-    try {
-      driver.get(MAIN_PAGE_URL);
-      Thread.sleep(4000);
+  void testCreateAndLeaveChatRoom() throws InterruptedException {
+    driver.get(MAIN_PAGE_URL);
+    Thread.sleep(4000);
 
-      // TODO: can't get a list of the chat rooms from the server for some reason
-      WebElement TalkToButton = new WebDriverWait(
-        driver,
-        Duration.ofSeconds(10)
-      )
-        .until(
-          ExpectedConditions.elementToBeClickable(By.id(TALK_TO_BUTTON_ID))
-        );
-      Thread.sleep(4000);
-      TalkToButton.click();
-      WebElement userButton = new WebDriverWait(driver, Duration.ofSeconds(10))
-        .until(
-          ExpectedConditions.elementToBeClickable(
-            By.cssSelector("div[id='modal-body-all-users'] > div > label")
-          )
-        );
-      // Thread.sleep(2000);
-      String talkPartnerName = userButton.getText();
-      userButton.click();
-      driver.findElement(By.id(TALK_BUTTON_ID)).click();
+    // TODO: can't get a list of the chat rooms from the server for some reason
+    WebElement TalkToButton = new WebDriverWait(driver, Duration.ofSeconds(10))
+      .until(ExpectedConditions.elementToBeClickable(By.id(TALK_TO_BUTTON_ID)));
+    // Thread.sleep(4000);
+    // WebElement TalkToButton = driver.findElement(By.id(TALK_TO_BUTTON_ID));
+    TalkToButton.click();
+    WebElement userButton = new WebDriverWait(driver, Duration.ofSeconds(10))
+      .until(
+        ExpectedConditions.elementToBeClickable(
+          By.cssSelector("div[id='modal-body-all-users'] > div > label")
+        )
+      );
+    // Thread.sleep(2000);
+    String talkPartnerName = userButton.getText();
+    userButton.click();
+    driver.findElement(By.id(TALK_BUTTON_ID)).click();
 
-      // check if chat room button is created
-      WebElement createdChatRoomButton = driver.findElement(
-        By.cssSelector("div[id='conversation-container'] > div > input")
-      );
-      assertTrue(
-        createdChatRoomButton.getAttribute("value").contains(talkPartnerName)
-      );
-      createdChatRoomButton.click();
-      // Thread.sleep(2000);
+    // check if chat room button is created
+    WebElement createdChatRoomButton = driver.findElement(
+      By.cssSelector("div[id='conversation-container'] > div > input")
+    );
+    assertTrue(
+      createdChatRoomButton.getAttribute("value").contains(talkPartnerName)
+    );
+    createdChatRoomButton.click();
+    // Thread.sleep(2000);
 
-      assertTrue(
-        driver
-          .findElement(By.id("chat-title"))
-          .getText()
-          .contains(talkPartnerName),
-        "Chat room title should contain the name of the talk partner"
-      );
-      // leave chat room
-      driver.findElement(By.id("leave-button")).click();
-      assertTrue(driver.findElement(By.id("chat-title")).getText().isEmpty());
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail();
-    }
+    assertTrue(
+      driver
+        .findElement(By.id("chat-title"))
+        .getText()
+        .contains(talkPartnerName),
+      "Chat room title should contain the name of the talk partner"
+    );
+    // leave chat room
+    driver.findElement(By.id("leave-button")).click();
+    assertTrue(driver.findElement(By.id("chat-title")).getText().isEmpty());
   }
 
   @Test
