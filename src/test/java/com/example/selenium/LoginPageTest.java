@@ -50,7 +50,7 @@ public class LoginPageTest {
       "--disable-gpu",
       "--no-sandbox"
     );
-    options.addArguments("--headless");
+    // options.addArguments("--headless");
 
     driver = new ChromeDriver(options);
   }
